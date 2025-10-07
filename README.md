@@ -1,4 +1,3 @@
-Absolutely! Below is the **README.md** template that you can easily copy and paste into your README file. This format is designed for you to easily update it with daily progress, while keeping all the necessary sections structured and clear.
 
 ````markdown
 # Luggage Tracking System Project
@@ -190,10 +189,6 @@ VALUES (1, 1, 'lost', 'Luggage misplaced at arrival airport.', NOW(), 'pending')
 
 
 
-### How to Use:
-- Each day, you can update the **System Development Progress** section with what you've accomplished.
-- When you make changes or updates to the database schema or SQL queries, just update the respective sections.
-- If you complete a task like testing or UI design, update that in the progress log.
 
-This format is ready to be copied directly into your `README.md` file, making it easy to maintain and update throughout the project's lifecycle.
+
 ```
