@@ -184,11 +184,3 @@ VALUES (1, 1, 'checked in', NOW(), 'Check-in Counter');
 INSERT INTO Reports (report_id, luggage_id, report_type, description, report_time, status)
 VALUES (1, 1, 'lost', 'Luggage misplaced at arrival airport.', NOW(), 'pending');
 ```
-
----
-
-
-
-
-
-```
