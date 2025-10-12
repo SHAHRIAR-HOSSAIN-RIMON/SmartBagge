@@ -1,6 +1,6 @@
 # ✈️ Luggage Tracking System (SQL-Based Project)
 
-## 🧩 Overview
+## Overview
 
 Airline passengers often face **lost, delayed, or mismanaged luggage** during check-in, transfer, or arrival. This project creates a **database-driven Luggage Tracking System** that helps airlines **track, monitor, and manage luggage efficiently**.
 
@@ -8,7 +8,7 @@ The system keeps each luggage item **linked to a passenger, a flight, and its cu
 
 ---
 
-## 🎯 Objectives
+## Objectives
 
 * Maintain accurate luggage data — weight, type, and status.
 * Link luggage with **specific passengers and flights**.
@@ -18,7 +18,7 @@ The system keeps each luggage item **linked to a passenger, a flight, and its cu
 
 ---
 
-## 📊 Entity-Relationship (ER) Diagram
+## Entity-Relationship (ER) Diagram
 
 **Key Relationships:**
 
@@ -43,17 +43,17 @@ Reports >───(1) Luggage
 
 ---
 
-## 🔁 System Flow
+## System Flow
 
-1. ✈️ Passenger checks in → luggage registered in database.
-2. 🎫 Luggage assigned to a flight and initial location (check-in counter).
-3. 📡 During transit, system updates luggage location (via `Baggage_Status` table).
-4. 🧾 If luggage delayed/lost → record created in `Reports` table.
-5. 👨‍💼 Employees review and resolve reports.
+1.  Passenger checks in → luggage registered in database.
+2.  Luggage assigned to a flight and initial location (check-in counter).
+3.  During transit, system updates luggage location (via `Baggage_Status` table).
+4.  If luggage delayed/lost → record created in `Reports` table.
+5.  Employees review and resolve reports.
 
 ---
 
-## 🧱 Database Schema Design (SQL)
+## Database Schema Design (SQL)
 
 ### 1. Airport_Locations Table
 **Create this FIRST** (other tables reference it)
@@ -302,7 +302,7 @@ WHERE r.status = 'pending';
 
 ---
 
-## 🧰 Tools & Technologies
+## Tools & Technologies
 
 * **DBMS**: MySQL 
 * **Backend (Optional)**: Node / Next.js
