@@ -8,38 +8,36 @@ The system keeps each luggage item **linked to a passenger, a flight, and its cu
 
 ## Objectives
 
-* Maintain accurate luggage data — weight, type, and status.
-* Link luggage with **specific passengers and flights**.
-* Track luggage journey from **check-in → transit → arrival**.
-* Alert on lost, delayed, or misplaced baggage.
-* Generate **reports** for operational analysis.
+- Maintain accurate luggage data — weight, type, and status.
+- Link luggage with **specific passengers and flights**.
+- Track luggage journey from **check-in → transit → arrival**.
+- Alert on lost, delayed, or misplaced baggage.
+- Generate **reports** for operational analysis.
 
 ## ER Diagram
 
   <img src="/Diagrams/ER-Diagram.png" alt="ide" width="500"/>
 
-* Shows all entities and their relationships
+- Shows all entities and their relationships
 
-* Clearly indicates primary keys (PK), foreign keys (FK), and unique constraints (UK)
+- Clearly indicates primary keys (PK), foreign keys (FK), and unique constraints (UK)
 
-* Demonstrates one-to-many and one-to-one relationships
-
+- Demonstrates one-to-many and one-to-one relationships
 
 ## Schema Diagram
 
   <img src="/Diagrams/Schema-Diagram.png" alt="ide" width="500"/>
 
-* Displays table structures with data types
+- Displays table structures with data types
 
-* Shows foreign key relationships between tables
+- Shows foreign key relationships between tables
 
-* Organized in a class-like structure for clarity
-
-
+- Organized in a class-like structure for clarity
 
 ## Database Schema Design (SQL)
 
 ### 1. Airport_Locations Table
+
 **Create this FIRST** (other tables reference it)
 
 ```sql
@@ -81,6 +79,7 @@ CREATE TABLE Passengers (
 ```
 
 ### 4. Luggage Table
+
 **KEY FIX:** Added `current_location_id` to track where luggage is NOW
 
 ```sql
@@ -99,6 +98,7 @@ CREATE TABLE Luggage (
 ```
 
 ### 5. Baggage_Status Table
+
 **Tracks movement history of luggage**
 
 ```sql
@@ -142,14 +142,13 @@ CREATE TABLE Reports (
 );
 ```
 
-
-## ⚙️ Example SQL Queries
+## Example SQL Queries
 
 ### Step 1: Insert Airport Locations
 
 ```sql
 INSERT INTO Airport_Locations (location_id, airport_code, location_name, city, country)
-VALUES 
+VALUES
 (1, 'DAC', 'Hazrat Shahjalal International Airport', 'Dhaka', 'Bangladesh'),
 (2, 'FCO', 'Leonardo da Vinci International Airport', 'Rome', 'Italy'),
 (3, 'DXB', 'Dubai International Airport', 'Dubai', 'UAE');
@@ -200,13 +199,12 @@ VALUES (1, 'lost', 'Luggage did not arrive at Rome Airport.', NOW(), 'pending', 
 UPDATE Luggage SET status = 'lost' WHERE luggage_id = 1;
 ```
 
-
-## 📈 Useful Queries for Reports
+## Useful Queries for Reports
 
 ### Find Current Location of Luggage
 
 ```sql
-SELECT 
+SELECT
     l.luggage_id,
     p.first_name,
     p.last_name,
@@ -222,7 +220,7 @@ WHERE l.luggage_id = 1;
 ### Track Complete Journey of Luggage
 
 ```sql
-SELECT 
+SELECT
     bs.status_id,
     bs.status,
     bs.timestamp,
@@ -237,7 +235,7 @@ ORDER BY bs.timestamp;
 ### Find All Lost Luggage
 
 ```sql
-SELECT 
+SELECT
     l.luggage_id,
     p.first_name,
     p.last_name,
@@ -252,7 +250,7 @@ WHERE l.status = 'lost';
 ### Show All Luggage on a Specific Flight
 
 ```sql
-SELECT 
+SELECT
     l.luggage_id,
     p.first_name,
     p.last_name,
@@ -268,7 +266,7 @@ WHERE l.flight_id = 101;
 ### View All Pending Reports
 
 ```sql
-SELECT 
+SELECT
     r.report_id,
     r.report_type,
     r.description,
@@ -284,7 +282,6 @@ WHERE r.status = 'pending';
 
 ## Tools & Technologies
 
-* **DBMS**: MySQL 
-* **Backend (Optional)**: Node / Next.js
-* **Frontend (Optional)**: React / Next.js
-
+- **DBMS**: MySQL
+- **Backend (Optional)**: Node / Next.js
+- **Frontend (Optional)**: React / Next.js
