@@ -1,14 +1,4 @@
 
-✅ Project overview & purpose
-✅ Step-by-step development plan
-✅ ER diagram & schema explanation
-✅ System flow diagram (in words for draw.io or Lucidchart)
-✅ Database schema + SQL code
-✅ Example queries (insert, update, select)
-✅ Suggested front-end integration
-✅ How to present the project
-
----
 
 # ✈️ Luggage Tracking System (SQL-Based Project)
 
