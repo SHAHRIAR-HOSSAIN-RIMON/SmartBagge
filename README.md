@@ -1,18 +1,16 @@
-
-
 # ✈️ Luggage Tracking System (SQL-Based Project)
 
 ## 🧩 Overview
 
 Airline passengers often face **lost, delayed, or mismanaged luggage** during check-in, transfer, or arrival. This project creates a **database-driven Luggage Tracking System** that helps airlines **track, monitor, and manage luggage efficiently**.
 
-The system keeps each luggage item **linked to a passenger, a flight, and its real-time status**, ensuring transparency and accountability.
+The system keeps each luggage item **linked to a passenger, a flight, and its current location**, ensuring transparency and accountability.
 
 ---
 
 ## 🎯 Objectives
 
-* Maintain accurate luggage data — weight, type, size, and status.
+* Maintain accurate luggage data — weight, type, and status.
 * Link luggage with **specific passengers and flights**.
 * Track luggage journey from **check-in → transit → arrival**.
 * Alert on lost, delayed, or misplaced baggage.
@@ -20,70 +18,53 @@ The system keeps each luggage item **linked to a passenger, a flight, and its re
 
 ---
 
-## 🏗️ System Architecture
-
-| Layer                            | Responsibility                                                                           |
-| -------------------------------- | ---------------------------------------------------------------------------------------- |
-| **Database Layer (SQL)**         | Stores and manages passengers, flights, luggage, status updates, reports, and employees. |
-| **Application Layer (optional)** | Could be a simple web or desktop app to query data (Python + SQL, PHP + MySQL, etc.)     |
-| **Visualization Layer**          | Displays reports and baggage status dashboards.                                          |
-
----
-
 ## 📊 Entity-Relationship (ER) Diagram
-
-You can draw this in **draw.io**, **Lucidchart**, or **DBDiagram.io** using the following relationships:
-
-```
-Passengers (1)───< (M) Luggage >───(1) Flights
-          │                        │
-          │                        └── Tracks which flight luggage belongs to
-          │
-          ├──< (M) Baggage_Status ──> (1) Airport_Locations
-          │
-          └──< (M) Reports
-          
-Employees ──< (M) Reports
-```
 
 **Key Relationships:**
 
-* Each passenger can have **multiple luggage**.
-* Each luggage belongs to **one flight**.
-* Each luggage can have **many status updates**.
-* Employees handle **reports**.
-* Each status update is linked to **an airport location**.
+* Each passenger can have **multiple luggage items**.
+* Each luggage belongs to **one flight** and is at **one location**.
+* Each luggage can have **many status updates** (history tracking).
+* Employees handle **reports** for lost/delayed luggage.
+
+```
+Passengers (1)───< (M) Luggage >───(1) Flights
+                       │
+                       │
+                       ├──> (1) Airport_Locations (current location)
+                       │
+                       └──< (M) Baggage_Status (location history)
+                                    │
+                                    └──> (1) Airport_Locations
+
+Reports >───(1) Luggage
+        >───(1) Employees
+```
 
 ---
 
-## 🔁 System Flow Diagram (Conceptual)
-
-**Flow:**
+## 🔁 System Flow
 
 1. ✈️ Passenger checks in → luggage registered in database.
-2. 🎫 Luggage assigned to a specific flight.
-3. 📡 During transit, system updates luggage location/status (via `Baggage_Status`).
-4. 🧾 If luggage delayed/lost → record entered in `Reports`.
+2. 🎫 Luggage assigned to a flight and initial location (check-in counter).
+3. 📡 During transit, system updates luggage location (via `Baggage_Status` table).
+4. 🧾 If luggage delayed/lost → record created in `Reports` table.
 5. 👨‍💼 Employees review and resolve reports.
-
-*(Draw boxes and arrows using “Passenger → Luggage → Flight → Status → Report → Employee” chain.)*
 
 ---
 
 ## 🧱 Database Schema Design (SQL)
 
-### 1. Passengers Table
+### 1. Airport_Locations Table
+**Create this FIRST** (other tables reference it)
 
 ```sql
-CREATE TABLE Passengers (
-    passenger_id INT PRIMARY KEY,
-    first_name VARCHAR(100),
-    last_name VARCHAR(100),
-    passport_number VARCHAR(50) UNIQUE,
-    email VARCHAR(100),
-    phone_number VARCHAR(15),
-    flight_id INT,
-    FOREIGN KEY (flight_id) REFERENCES Flights(flight_id)
+CREATE TABLE Airport_Locations (
+    location_id INT PRIMARY KEY,
+    airport_code VARCHAR(10) UNIQUE,
+    location_name VARCHAR(100),
+    city VARCHAR(100),
+    country VARCHAR(100)
 );
 ```
 
@@ -93,14 +74,30 @@ CREATE TABLE Passengers (
 CREATE TABLE Flights (
     flight_id INT PRIMARY KEY,
     flight_number VARCHAR(50) UNIQUE,
-    departure_city VARCHAR(100),
-    arrival_city VARCHAR(100),
+    departure_airport_id INT,
+    arrival_airport_id INT,
     departure_time DATETIME,
-    arrival_time DATETIME
+    arrival_time DATETIME,
+    FOREIGN KEY (departure_airport_id) REFERENCES Airport_Locations(location_id),
+    FOREIGN KEY (arrival_airport_id) REFERENCES Airport_Locations(location_id)
 );
 ```
 
-### 3. Luggage Table
+### 3. Passengers Table
+
+```sql
+CREATE TABLE Passengers (
+    passenger_id INT PRIMARY KEY,
+    first_name VARCHAR(100),
+    last_name VARCHAR(100),
+    passport_number VARCHAR(50) UNIQUE,
+    email VARCHAR(100),
+    phone_number VARCHAR(15)
+);
+```
+
+### 4. Luggage Table
+**KEY FIX:** Added `current_location_id` to track where luggage is NOW
 
 ```sql
 CREATE TABLE Luggage (
@@ -108,40 +105,27 @@ CREATE TABLE Luggage (
     passenger_id INT,
     flight_id INT,
     weight DECIMAL(5,2),
-    size VARCHAR(50),
-    type VARCHAR(50), -- carry-on, checked-in
-    status VARCHAR(50), -- checked in, in transit, arrived
+    type VARCHAR(50), -- 'carry-on' or 'checked-in'
+    status VARCHAR(50), -- 'checked in', 'in transit', 'arrived', 'lost'
+    current_location_id INT,
     FOREIGN KEY (passenger_id) REFERENCES Passengers(passenger_id),
-    FOREIGN KEY (flight_id) REFERENCES Flights(flight_id)
+    FOREIGN KEY (flight_id) REFERENCES Flights(flight_id),
+    FOREIGN KEY (current_location_id) REFERENCES Airport_Locations(location_id)
 );
 ```
 
-### 4. Baggage_Status Table
+### 5. Baggage_Status Table
+**Tracks movement history of luggage**
 
 ```sql
 CREATE TABLE Baggage_Status (
-    status_id INT PRIMARY KEY,
+    status_id INT PRIMARY KEY AUTO_INCREMENT,
     luggage_id INT,
-    status VARCHAR(50), -- checked in, delayed, lost, etc.
+    status VARCHAR(50),
     timestamp DATETIME,
-    location VARCHAR(100),
-    FOREIGN KEY (luggage_id) REFERENCES Luggage(luggage_id)
-);
-```
-
-### 5. Reports Table
-
-```sql
-CREATE TABLE Reports (
-    report_id INT PRIMARY KEY,
-    luggage_id INT,
-    report_type VARCHAR(50), -- lost, delayed, etc.
-    description TEXT,
-    report_time DATETIME,
-    status VARCHAR(50), -- resolved, pending
-    employee_id INT,
+    location_id INT,
     FOREIGN KEY (luggage_id) REFERENCES Luggage(luggage_id),
-    FOREIGN KEY (employee_id) REFERENCES Employees(employee_id)
+    FOREIGN KEY (location_id) REFERENCES Airport_Locations(location_id)
 );
 ```
 
@@ -158,14 +142,19 @@ CREATE TABLE Employees (
 );
 ```
 
-### 7. Airport_Locations Table
+### 7. Reports Table
 
 ```sql
-CREATE TABLE Airport_Locations (
-    location_id INT PRIMARY KEY,
-    location_name VARCHAR(100),
-    city VARCHAR(100),
-    country VARCHAR(100)
+CREATE TABLE Reports (
+    report_id INT PRIMARY KEY AUTO_INCREMENT,
+    luggage_id INT,
+    report_type VARCHAR(50), -- 'lost', 'delayed', 'damaged'
+    description TEXT,
+    report_time DATETIME,
+    status VARCHAR(50), -- 'resolved', 'pending'
+    employee_id INT,
+    FOREIGN KEY (luggage_id) REFERENCES Luggage(luggage_id),
+    FOREIGN KEY (employee_id) REFERENCES Employees(employee_id)
 );
 ```
 
@@ -173,80 +162,149 @@ CREATE TABLE Airport_Locations (
 
 ## ⚙️ Example SQL Queries
 
-### Insert Passenger
+### Step 1: Insert Airport Locations
 
 ```sql
-INSERT INTO Passengers (passenger_id, first_name, last_name, passport_number, email, phone_number, flight_id)
-VALUES (1, 'John', 'Doe', 'A12345678', 'john.doe@example.com', '01712345678', 101);
+INSERT INTO Airport_Locations (location_id, airport_code, location_name, city, country)
+VALUES 
+(1, 'DAC', 'Hazrat Shahjalal International Airport', 'Dhaka', 'Bangladesh'),
+(2, 'FCO', 'Leonardo da Vinci International Airport', 'Rome', 'Italy'),
+(3, 'DXB', 'Dubai International Airport', 'Dubai', 'UAE');
 ```
 
-### Insert Flight
+### Step 2: Insert Flight
 
 ```sql
-INSERT INTO Flights (flight_id, flight_number, departure_city, arrival_city, departure_time, arrival_time)
-VALUES (101, 'BG201', 'Dhaka', 'Rome', '2025-10-15 09:00:00', '2025-10-15 15:30:00');
+INSERT INTO Flights (flight_id, flight_number, departure_airport_id, arrival_airport_id, departure_time, arrival_time)
+VALUES (101, 'BG201', 1, 2, '2025-10-15 09:00:00', '2025-10-15 15:30:00');
 ```
 
-### Register Luggage
+### Step 3: Insert Passenger
 
 ```sql
-INSERT INTO Luggage (luggage_id, passenger_id, flight_id, weight, size, type, status)
-VALUES (1, 1, 101, 22.5, 'Large', 'checked-in', 'checked in');
+INSERT INTO Passengers (passenger_id, first_name, last_name, passport_number, email, phone_number)
+VALUES (1, 'John', 'Doe', 'A12345678', 'john.doe@example.com', '01712345678');
 ```
 
-### Update Luggage Status
+### Step 4: Register Luggage (with current location)
 
 ```sql
-UPDATE Luggage
-SET status = 'in transit'
-WHERE luggage_id = 1;
+INSERT INTO Luggage (luggage_id, passenger_id, flight_id, weight, type, status, current_location_id)
+VALUES (1, 1, 101, 22.5, 'checked-in', 'checked in', 1);
 ```
 
-### Add Baggage Status
+### Step 5: Track Luggage Movement (Add to history)
 
 ```sql
-INSERT INTO Baggage_Status (status_id, luggage_id, status, timestamp, location)
-VALUES (1, 1, 'checked in', NOW(), 'Dhaka Check-in Counter');
+-- Luggage checked in at Dhaka
+INSERT INTO Baggage_Status (luggage_id, status, timestamp, location_id)
+VALUES (1, 'checked in', NOW(), 1);
+
+-- Luggage arrives at Dubai (transit)
+INSERT INTO Baggage_Status (luggage_id, status, timestamp, location_id)
+VALUES (1, 'in transit', NOW(), 3);
+
+-- Update current location in Luggage table
+UPDATE Luggage SET current_location_id = 3, status = 'in transit' WHERE luggage_id = 1;
 ```
 
-### Report Lost Luggage
+### Step 6: Report Lost Luggage
 
 ```sql
-INSERT INTO Reports (report_id, luggage_id, report_type, description, report_time, status, employee_id)
-VALUES (1, 1, 'lost', 'Luggage misplaced at Rome Airport.', NOW(), 'pending', 2);
+INSERT INTO Reports (luggage_id, report_type, description, report_time, status, employee_id)
+VALUES (1, 'lost', 'Luggage did not arrive at Rome Airport.', NOW(), 'pending', 2);
+
+UPDATE Luggage SET status = 'lost' WHERE luggage_id = 1;
 ```
 
 ---
 
-## 📈 Example Queries for Output Reports
+## 📈 Useful Queries for Reports
 
-| Use Case                            | SQL Query                                                               |
-| ----------------------------------- | ----------------------------------------------------------------------- |
-| Find all lost luggage               | `SELECT * FROM Reports WHERE report_type = 'lost';`                     |
-| Show passenger’s luggage            | `SELECT * FROM Luggage WHERE passenger_id = 1;`                         |
-| Check flight luggage status         | `SELECT * FROM Luggage WHERE flight_id = 101;`                          |
-| View all pending reports            | `SELECT * FROM Reports WHERE status = 'pending';`                       |
-| Track location history of a luggage | `SELECT * FROM Baggage_Status WHERE luggage_id = 1 ORDER BY timestamp;` |
+### Find Current Location of Luggage
 
----
+```sql
+SELECT 
+    l.luggage_id,
+    p.first_name,
+    p.last_name,
+    l.status,
+    al.location_name AS current_location,
+    al.city
+FROM Luggage l
+JOIN Passengers p ON l.passenger_id = p.passenger_id
+JOIN Airport_Locations al ON l.current_location_id = al.location_id
+WHERE l.luggage_id = 1;
+```
 
-## 🧠 Project Flow Summary
+### Track Complete Journey of Luggage
 
-1. **Data Entry** – Enter flight, passenger, and luggage details.
-2. **Status Tracking** – Update luggage status at each airport checkpoint.
-3. **Error Handling** – Report lost or delayed luggage via the Reports table.
-4. **Employee Review** – Assigned employees investigate and resolve cases.
-5. **Report Generation** – Generate summary reports for management.
+```sql
+SELECT 
+    bs.status_id,
+    bs.status,
+    bs.timestamp,
+    al.location_name,
+    al.city
+FROM Baggage_Status bs
+JOIN Airport_Locations al ON bs.location_id = al.location_id
+WHERE bs.luggage_id = 1
+ORDER BY bs.timestamp;
+```
+
+### Find All Lost Luggage
+
+```sql
+SELECT 
+    l.luggage_id,
+    p.first_name,
+    p.last_name,
+    f.flight_number,
+    l.status
+FROM Luggage l
+JOIN Passengers p ON l.passenger_id = p.passenger_id
+JOIN Flights f ON l.flight_id = f.flight_id
+WHERE l.status = 'lost';
+```
+
+### Show All Luggage on a Specific Flight
+
+```sql
+SELECT 
+    l.luggage_id,
+    p.first_name,
+    p.last_name,
+    l.weight,
+    l.status,
+    al.location_name AS current_location
+FROM Luggage l
+JOIN Passengers p ON l.passenger_id = p.passenger_id
+JOIN Airport_Locations al ON l.current_location_id = al.location_id
+WHERE l.flight_id = 101;
+```
+
+### View All Pending Reports
+
+```sql
+SELECT 
+    r.report_id,
+    r.report_type,
+    r.description,
+    p.first_name,
+    p.last_name,
+    e.first_name AS employee_name
+FROM Reports r
+JOIN Luggage l ON r.luggage_id = l.luggage_id
+JOIN Passengers p ON l.passenger_id = p.passenger_id
+LEFT JOIN Employees e ON r.employee_id = e.employee_id
+WHERE r.status = 'pending';
+```
 
 ---
 
 ## 🧰 Tools & Technologies
 
-* **DBMS**: MySQL / PostgreSQL / SQLite
-* **Frontend (Optional)**: HTML + PHP / Python (Tkinter or Flask)
-* **Visualization (Optional)**: Power BI / Tableau for luggage stats
-* **Diagramming Tools**: Draw.io, Lucidchart, or DBDiagram.io
+* **DBMS**: MySQL 
+* **Backend (Optional)**: Node / Next.js
+* **Frontend (Optional)**: React / Next.js
 
-
-
-Would you like me to **generate the actual ER diagram (image)** and a **system flowchart** (e.g., draw.io-style visual) for this project so you can directly include them in your report or presentation PDF?
