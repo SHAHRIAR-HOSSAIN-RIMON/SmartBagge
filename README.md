@@ -6,8 +6,6 @@ Airline passengers often face **lost, delayed, or mismanaged luggage** during ch
 
 The system keeps each luggage item **linked to a passenger, a flight, and its current location**, ensuring transparency and accountability.
 
----
-
 ## Objectives
 
 * Maintain accurate luggage data — weight, type, and status.
@@ -16,42 +14,28 @@ The system keeps each luggage item **linked to a passenger, a flight, and its cu
 * Alert on lost, delayed, or misplaced baggage.
 * Generate **reports** for operational analysis.
 
----
+## ER Diagram
 
-## Entity-Relationship (ER) Diagram
+  <img src="/Diagrams/ER-Diagram.png" alt="ide" width="500"/>
 
-**Key Relationships:**
+* Shows all entities and their relationships
 
-* Each passenger can have **multiple luggage items**.
-* Each luggage belongs to **one flight** and is at **one location**.
-* Each luggage can have **many status updates** (history tracking).
-* Employees handle **reports** for lost/delayed luggage.
+* Clearly indicates primary keys (PK), foreign keys (FK), and unique constraints (UK)
 
-```
-Passengers (1)───< (M) Luggage >───(1) Flights
-                       │
-                       │
-                       ├──> (1) Airport_Locations (current location)
-                       │
-                       └──< (M) Baggage_Status (location history)
-                                    │
-                                    └──> (1) Airport_Locations
+* Demonstrates one-to-many and one-to-one relationships
 
-Reports >───(1) Luggage
-        >───(1) Employees
-```
 
----
+## Schema Diagram
 
-## System Flow
+  <img src="/Diagrams/Schema-Diagram.png" alt="ide" width="500"/>
 
-1.  Passenger checks in → luggage registered in database.
-2.  Luggage assigned to a flight and initial location (check-in counter).
-3.  During transit, system updates luggage location (via `Baggage_Status` table).
-4.  If luggage delayed/lost → record created in `Reports` table.
-5.  Employees review and resolve reports.
+* Displays table structures with data types
 
----
+* Shows foreign key relationships between tables
+
+* Organized in a class-like structure for clarity
+
+
 
 ## Database Schema Design (SQL)
 
@@ -158,7 +142,6 @@ CREATE TABLE Reports (
 );
 ```
 
----
 
 ## ⚙️ Example SQL Queries
 
@@ -217,7 +200,6 @@ VALUES (1, 'lost', 'Luggage did not arrive at Rome Airport.', NOW(), 'pending', 
 UPDATE Luggage SET status = 'lost' WHERE luggage_id = 1;
 ```
 
----
 
 ## 📈 Useful Queries for Reports
 
@@ -299,8 +281,6 @@ JOIN Passengers p ON l.passenger_id = p.passenger_id
 LEFT JOIN Employees e ON r.employee_id = e.employee_id
 WHERE r.status = 'pending';
 ```
-
----
 
 ## Tools & Technologies
 
