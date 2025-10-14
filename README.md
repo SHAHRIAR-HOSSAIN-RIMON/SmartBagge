@@ -144,7 +144,29 @@ CREATE TABLE Reports (
 ```
 
 ## Example SQL Queries
+### Step 1: Insert Airport Locations
 
+```sql
+INSERT INTO Airport_Locations (location_id, airport_code, location_name, city, country)
+VALUES
+(1, 'DAC', 'Hazrat Shahjalal International Airport', 'Dhaka', 'Bangladesh'),
+(2, 'FCO', 'Leonardo da Vinci International Airport', 'Rome', 'Italy'),
+(3, 'DXB', 'Dubai International Airport', 'Dubai', 'UAE');
+```
+
+### Step 2: Insert Flight
+
+```sql
+INSERT INTO Flights (flight_id, flight_number, departure_airport_id, arrival_airport_id, departure_time, arrival_time)
+VALUES (101, 'BG201', 1, 2, '2025-10-15 09:00:00', '2025-10-15 15:30:00');
+```
+
+### Step 3: Insert Passenger
+
+```sql
+INSERT INTO Passengers (passenger_id, first_name, last_name, passport_number, email, phone_number)
+VALUES (1, 'John', 'Doe', 'A12345678', 'john.doe@example.com', '01712345678');
+```
 ### Step 1: Insert Airport Locations
 
 ```sql
