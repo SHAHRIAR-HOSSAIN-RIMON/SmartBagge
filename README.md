@@ -54,24 +54,15 @@ CREATE TABLE Airport_Locations (
 
 ```sql
 CREATE TABLE Flights (
-    flight_id INT AUTO_INCREMENT PRIMARY KEY,
-    flight_number VARCHAR(20) NOT NULL UNIQUE,
-    departure_airport_id INT NOT NULL,
-    arrival_airport_id INT NOT NULL,
-    departure_time DATETIME NOT NULL,
-    arrival_time DATETIME NOT NULL,
-    CONSTRAINT fk_departure FOREIGN KEY (departure_airport_id)
-        REFERENCES Airport_Locations(location_id)
-        ON DELETE CASCADE
-        ON UPDATE CASCADE,
-    CONSTRAINT fk_arrival FOREIGN KEY (arrival_airport_id)
-        REFERENCES Airport_Locations(location_id)
-        ON DELETE CASCADE
-        ON UPDATE CASCADE,
-    INDEX idx_departure (departure_airport_id),
-    INDEX idx_arrival (arrival_airport_id)
+    flight_id INT PRIMARY KEY,
+    flight_number VARCHAR(50) UNIQUE,
+    departure_airport_id INT,
+    arrival_airport_id INT,
+    departure_time DATETIME,
+    arrival_time DATETIME,
+    FOREIGN KEY (departure_airport_id) REFERENCES Airport_Locations(location_id),
+    FOREIGN KEY (arrival_airport_id) REFERENCES Airport_Locations(location_id)
 );
-
 ```
 
 ### 3. Passengers Table
