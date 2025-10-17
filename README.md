@@ -6,7 +6,7 @@ Airline passengers often face **lost, delayed, or mismanaged luggage** during ch
 
 The system keeps each luggage item **linked to a passenger, a flight, and its current location**, ensuring transparency and accountability.
 
-## 🔁 System Flow
+## System Flow
 
 1.  Passenger creates booking for a specific flight.
 2.  Passenger checks in → luggage registered and linked to booking.
@@ -176,17 +176,13 @@ CREATE TABLE Reports (
 );
 ```
 
-<<<<<<< HEAD
 
 ## Example SQL Queries
 
 ### Step 1: Insert Airport Locations
 
-=======
 
-## ⚙️ Example SQL Queries
-
-> > > > > > > bd2eb1d29ee17f56f55a0ae94b3d96a9188fa026
+## Example SQL Queries
 
 ```sql
 INSERT INTO Airport_Locations (location_id, airport_code, location_name, city, country)
@@ -272,7 +268,7 @@ VALUES (1, 'lost', 'Luggage did not arrive at Rome Airport.', NOW(), 'pending', 
 UPDATE Luggage SET status = 'lost' WHERE luggage_id = 1;
 ```
 
-## 📈 Useful Queries for Reports
+## Useful Queries for Reports
 
 ### Find Passenger Booking Details
 
