@@ -1,13 +1,10 @@
-
-# ✈️ Luggage Tracking System (SQL-Based Project)  
+# ✈️ Luggage Tracking System (SQL-Based Project)
 
 ## Overview
 
 Airline passengers often face **lost, delayed, or mismanaged luggage** during check-in, transfer, or arrival. This project creates a **database-driven Luggage Tracking System** that helps airlines **track, monitor, and manage luggage efficiently**.
 
 The system keeps each luggage item **linked to a passenger, a flight, and its current location**, ensuring transparency and accountability.
-
-
 
 ## 🔁 System Flow
 
@@ -18,16 +15,14 @@ The system keeps each luggage item **linked to a passenger, a flight, and its cu
 5.  If luggage delayed/lost → record created in `Reports` table.
 6.  Employees review and resolve reports.
 
-
+<img src="/Diagrams/simple-workflow.png" alt="ide" width="500"/>
 
 ## Entity-Relationship (ER) Diagram
 
 **Relationship name (e.g., "has", "owns", "carries")** <br/>
 **Cardinality (e.g., 1:1, 1:M, M:1)**
 
-
   <img src="/Diagrams/ER-Diagram.png" alt="ide" width="500"/>
-
 
 ### Color Coding:
 
@@ -39,19 +34,17 @@ The system keeps each luggage item **linked to a passenger, a flight, and its cu
 
 ### Relationship Summary
 
-| Relationship Type | Example | Tables Involved |
-|-------------------|---------|-----------------|
-| **1:1** | One passenger → One booking | Passengers ↔ Flight_Bookings |
-| **1:M** | One passenger → Many luggage | Passengers → Luggage |
-| **1:M** | One flight → Many luggage | Flights → Luggage |
-| **1:M** | One luggage → Many status records | Luggage → Baggage_Status |
-| **1:M** | One employee → Many reports | Employees → Reports |
-| **M:1** | Many luggage → One location | Luggage → Airport_Locations |
-| **M:1** | Many status records → One location | Baggage_Status → Airport_Locations |
-| **M:1** | Many reports → One luggage | Reports → Luggage |
-| **M:N** | Many flights ↔ Many airports | Flights ↔ Airport_Locations |
-
-
+| Relationship Type | Example                            | Tables Involved                    |
+| ----------------- | ---------------------------------- | ---------------------------------- |
+| **1:1**           | One passenger → One booking        | Passengers ↔ Flight_Bookings       |
+| **1:M**           | One passenger → Many luggage       | Passengers → Luggage               |
+| **1:M**           | One flight → Many luggage          | Flights → Luggage                  |
+| **1:M**           | One luggage → Many status records  | Luggage → Baggage_Status           |
+| **1:M**           | One employee → Many reports        | Employees → Reports                |
+| **M:1**           | Many luggage → One location        | Luggage → Airport_Locations        |
+| **M:1**           | Many status records → One location | Baggage_Status → Airport_Locations |
+| **M:1**           | Many reports → One luggage         | Reports → Luggage                  |
+| **M:N**           | Many flights ↔ Many airports       | Flights ↔ Airport_Locations        |
 
 ## Schema Diagram
 
@@ -64,6 +57,7 @@ The system keeps each luggage item **linked to a passenger, a flight, and its cu
 ## Database Schema Design (SQL)
 
 ### 1. Airport_Locations Table
+
 **Create this FIRST** (other tables reference it)
 
 ```sql
@@ -119,6 +113,7 @@ CREATE TABLE Flight_Bookings (
 ```
 
 ### 5. Luggage Table
+
 **Tracks current location of each bag**
 
 ```sql
@@ -137,6 +132,7 @@ CREATE TABLE Luggage (
 ```
 
 ### 6. Baggage_Status Table
+
 **Tracks movement history of luggage**
 
 ```sql
@@ -181,12 +177,16 @@ CREATE TABLE Reports (
 ```
 
 <<<<<<< HEAD
+
 ## Example SQL Queries
+
 ### Step 1: Insert Airport Locations
+
 =======
 
 ## ⚙️ Example SQL Queries
->>>>>>> bd2eb1d29ee17f56f55a0ae94b3d96a9188fa026
+
+> > > > > > > bd2eb1d29ee17f56f55a0ae94b3d96a9188fa026
 
 ```sql
 INSERT INTO Airport_Locations (location_id, airport_code, location_name, city, country)
@@ -209,11 +209,12 @@ VALUES (101, 'BG201', 1, 2, '2025-10-15 09:00:00', '2025-10-15 15:30:00');
 INSERT INTO Passengers (passenger_id, first_name, last_name, passport_number, email, phone_number)
 VALUES (1, 'John', 'Doe', 'A12345678', 'john.doe@example.com', '01712345678');
 ```
+
 ### Step 1: Insert Airport Locations
 
 ```sql
 INSERT INTO Airport_Locations (location_id, airport_code, location_name, city, country)
-VALUES 
+VALUES
 (1, 'DAC', 'Hazrat Shahjalal International Airport', 'Dhaka', 'Bangladesh'),
 (2, 'FCO', 'Leonardo da Vinci International Airport', 'Rome', 'Italy'),
 (3, 'DXB', 'Dubai International Airport', 'Dubai', 'UAE');
@@ -276,7 +277,7 @@ UPDATE Luggage SET status = 'lost' WHERE luggage_id = 1;
 ### Find Passenger Booking Details
 
 ```sql
-SELECT 
+SELECT
     p.first_name,
     p.last_name,
     fb.booking_id,
@@ -295,7 +296,7 @@ WHERE p.passenger_id = 1;
 ### Find Current Location of Luggage
 
 ```sql
-SELECT 
+SELECT
     l.luggage_id,
     p.first_name,
     p.last_name,
@@ -311,7 +312,7 @@ WHERE l.luggage_id = 1;
 ### Track Complete Journey of Luggage
 
 ```sql
-SELECT 
+SELECT
     bs.status_id,
     bs.status,
     bs.timestamp,
@@ -326,7 +327,7 @@ ORDER BY bs.timestamp;
 ### Find All Lost Luggage
 
 ```sql
-SELECT 
+SELECT
     l.luggage_id,
     p.first_name,
     p.last_name,
@@ -341,7 +342,7 @@ WHERE l.status = 'lost';
 ### Show All Luggage on a Specific Flight
 
 ```sql
-SELECT 
+SELECT
     l.luggage_id,
     p.first_name,
     p.last_name,
@@ -357,7 +358,7 @@ WHERE l.flight_id = 101;
 ### View All Pending Reports
 
 ```sql
-SELECT 
+SELECT
     r.report_id,
     r.report_type,
     r.description,
@@ -374,7 +375,7 @@ WHERE r.status = 'pending';
 ### Show All Passengers and Their Luggage Count
 
 ```sql
-SELECT 
+SELECT
     p.passenger_id,
     p.first_name,
     p.last_name,
@@ -387,7 +388,7 @@ GROUP BY p.passenger_id, p.first_name, p.last_name;
 ### Find All Flights Using a Specific Airport
 
 ```sql
-SELECT 
+SELECT
     f.flight_number,
     dep.city AS departure,
     arr.city AS arrival,
@@ -398,11 +399,8 @@ JOIN Airport_Locations arr ON f.arrival_airport_id = arr.location_id
 WHERE f.departure_airport_id = 1 OR f.arrival_airport_id = 1;
 ```
 
-
 ## Tools & Technologies
 
 - **DBMS**: MySQL
 - **Backend (Optional)**: Node / Next.js
 - **Frontend (Optional)**: React / Next.js
-
-
