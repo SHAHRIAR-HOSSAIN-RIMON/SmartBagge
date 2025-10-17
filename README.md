@@ -15,7 +15,7 @@ The system keeps each luggage item **linked to a passenger, a flight, and its cu
 5.  If luggage delayed/lost → record created in `Reports` table.
 6.  Employees review and resolve reports.
 
-<img src="/Diagrams/simple-workflow.png" alt="ide" width="500"/>
+<img src="/Diagrams/simple-workflow.png" alt="ide" width="1000" height="1000" />
 
 ## Entity-Relationship (ER) Diagram
 
