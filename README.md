@@ -176,17 +176,14 @@ CREATE TABLE Reports (
 );
 ```
 
-<<<<<<< HEAD
 
 ## Example SQL Queries
 
 ### Step 1: Insert Airport Locations
 
-=======
 
 ## ⚙️ Example SQL Queries
 
-> > > > > > > bd2eb1d29ee17f56f55a0ae94b3d96a9188fa026
 
 ```sql
 INSERT INTO Airport_Locations (location_id, airport_code, location_name, city, country)
