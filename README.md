@@ -1,5 +1,4 @@
-
-# ✈️ Luggage Tracking System (SQL-Based Project)  
+# ✈️ Luggage Tracking System (SQL-Based Project)
 
 ## Overview
 
@@ -7,33 +6,53 @@ Airline passengers often face **lost, delayed, or mismanaged luggage** during ch
 
 The system keeps each luggage item **linked to a passenger, a flight, and its current location**, ensuring transparency and accountability.
 
-## Objectives
+## 🔁 System Flow
 
-- Maintain accurate luggage data — weight, type, and status.
-- Link luggage with **specific passengers and flights**.
-- Track luggage journey from **check-in → transit → arrival**.
-- Alert on lost, delayed, or misplaced baggage.
-- Generate **reports** for operational analysis.
+1.  Passenger creates booking for a specific flight.
+2.  Passenger checks in → luggage registered and linked to booking.
+3.  Luggage assigned initial location (check-in counter).
+4.  During transit, system updates luggage location (via `Baggage_Status` table).
+5.  If luggage delayed/lost → record created in `Reports` table.
+6.  Employees review and resolve reports.
 
-## ER Diagram
+<img src="/Diagrams/simple-workflow.png" alt="ide" width="1000" height="1000" />
+
+## Entity-Relationship (ER) Diagram
+
+**Relationship name (e.g., "has", "owns", "carries")** <br/>
+**Cardinality (e.g., 1:1, 1:M, M:1)**
 
   <img src="/Diagrams/ER-Diagram.png" alt="ide" width="500"/>
 
-- Shows all entities and their relationships
+### Color Coding:
 
-- Clearly indicates primary keys (PK), foreign keys (FK), and unique constraints (UK)
+🟠 Orange: Passenger & Booking entities <br/>
+🔵 Blue: Airport & Flight entities <br/>
+🟣 Purple: Luggage entities <br/>
+🟢 Green: Report & Employee entities <br/>
+🟡 Yellow: All relationships (diamond shapes)
 
-- Demonstrates one-to-many and one-to-one relationships
+### Relationship Summary
+
+| Relationship Type | Example                            | Tables Involved                    |
+| ----------------- | ---------------------------------- | ---------------------------------- |
+| **1:1**           | One passenger → One booking        | Passengers ↔ Flight_Bookings       |
+| **1:M**           | One passenger → Many luggage       | Passengers → Luggage               |
+| **1:M**           | One flight → Many luggage          | Flights → Luggage                  |
+| **1:M**           | One luggage → Many status records  | Luggage → Baggage_Status           |
+| **1:M**           | One employee → Many reports        | Employees → Reports                |
+| **M:1**           | Many luggage → One location        | Luggage → Airport_Locations        |
+| **M:1**           | Many status records → One location | Baggage_Status → Airport_Locations |
+| **M:1**           | Many reports → One luggage         | Reports → Luggage                  |
+| **M:N**           | Many flights ↔ Many airports       | Flights ↔ Airport_Locations        |
 
 ## Schema Diagram
 
-  <img src="/Diagrams/Schema-Diagram.png" alt="ide" width="500"/>
+<img src="/Diagrams/Schema-Diagram.png" alt="ide" width="500"/>
 
-- Displays table structures with data types
+**Displaying table structures with the data types** <br/>
 
-- Shows foreign key relationships between tables
-
-- Organized in a class-like structure for clarity
+**Showing foreign key relationships between the tables**
 
 ## Database Schema Design (SQL)
 
@@ -79,9 +98,23 @@ CREATE TABLE Passengers (
 );
 ```
 
-### 4. Luggage Table
+### 4. Flight_Bookings Table (NEW - Creates 1:1 Relationship)
 
-**KEY FIX:** Added `current_location_id` to track where luggage is NOW
+```sql
+CREATE TABLE Flight_Bookings (
+    booking_id INT PRIMARY KEY,
+    passenger_id INT UNIQUE,
+    flight_id INT,
+    booking_date DATETIME,
+    seat_number VARCHAR(10),
+    FOREIGN KEY (passenger_id) REFERENCES Passengers(passenger_id),
+    FOREIGN KEY (flight_id) REFERENCES Flights(flight_id)
+);
+```
+
+### 5. Luggage Table
+
+**Tracks current location of each bag**
 
 ```sql
 CREATE TABLE Luggage (
@@ -98,7 +131,7 @@ CREATE TABLE Luggage (
 );
 ```
 
-### 5. Baggage_Status Table
+### 6. Baggage_Status Table
 
 **Tracks movement history of luggage**
 
@@ -114,7 +147,7 @@ CREATE TABLE Baggage_Status (
 );
 ```
 
-### 6. Employees Table
+### 7. Employees Table
 
 ```sql
 CREATE TABLE Employees (
@@ -127,7 +160,7 @@ CREATE TABLE Employees (
 );
 ```
 
-### 7. Reports Table
+### 8. Reports Table
 
 ```sql
 CREATE TABLE Reports (
@@ -143,7 +176,40 @@ CREATE TABLE Reports (
 );
 ```
 
+<<<<<<< HEAD
+
 ## Example SQL Queries
+
+### Step 1: Insert Airport Locations
+
+=======
+
+## ⚙️ Example SQL Queries
+
+> > > > > > > bd2eb1d29ee17f56f55a0ae94b3d96a9188fa026
+
+```sql
+INSERT INTO Airport_Locations (location_id, airport_code, location_name, city, country)
+VALUES
+(1, 'DAC', 'Hazrat Shahjalal International Airport', 'Dhaka', 'Bangladesh'),
+(2, 'FCO', 'Leonardo da Vinci International Airport', 'Rome', 'Italy'),
+(3, 'DXB', 'Dubai International Airport', 'Dubai', 'UAE');
+```
+
+### Step 2: Insert Flight
+
+```sql
+INSERT INTO Flights (flight_id, flight_number, departure_airport_id, arrival_airport_id, departure_time, arrival_time)
+VALUES (101, 'BG201', 1, 2, '2025-10-15 09:00:00', '2025-10-15 15:30:00');
+```
+
+### Step 3: Insert Passenger
+
+```sql
+INSERT INTO Passengers (passenger_id, first_name, last_name, passport_number, email, phone_number)
+VALUES (1, 'John', 'Doe', 'A12345678', 'john.doe@example.com', '01712345678');
+```
+
 ### Step 1: Insert Airport Locations
 
 ```sql
@@ -167,38 +233,22 @@ VALUES (101, 'BG201', 1, 2, '2025-10-15 09:00:00', '2025-10-15 15:30:00');
 INSERT INTO Passengers (passenger_id, first_name, last_name, passport_number, email, phone_number)
 VALUES (1, 'John', 'Doe', 'A12345678', 'john.doe@example.com', '01712345678');
 ```
-### Step 1: Insert Airport Locations
+
+### Step 4: Create Flight Booking (NEW)
 
 ```sql
-INSERT INTO Airport_Locations (location_id, airport_code, location_name, city, country)
-VALUES
-(1, 'DAC', 'Hazrat Shahjalal International Airport', 'Dhaka', 'Bangladesh'),
-(2, 'FCO', 'Leonardo da Vinci International Airport', 'Rome', 'Italy'),
-(3, 'DXB', 'Dubai International Airport', 'Dubai', 'UAE');
+INSERT INTO Flight_Bookings (booking_id, passenger_id, flight_id, booking_date, seat_number)
+VALUES (1001, 1, 101, '2025-10-10 14:30:00', '12A');
 ```
 
-### Step 2: Insert Flight
-
-```sql
-INSERT INTO Flights (flight_id, flight_number, departure_airport_id, arrival_airport_id, departure_time, arrival_time)
-VALUES (101, 'BG201', 1, 2, '2025-10-15 09:00:00', '2025-10-15 15:30:00');
-```
-
-### Step 3: Insert Passenger
-
-```sql
-INSERT INTO Passengers (passenger_id, first_name, last_name, passport_number, email, phone_number)
-VALUES (1, 'John', 'Doe', 'A12345678', 'john.doe@example.com', '01712345678');
-```
-
-### Step 4: Register Luggage (with current location)
+### Step 5: Register Luggage (with current location)
 
 ```sql
 INSERT INTO Luggage (luggage_id, passenger_id, flight_id, weight, type, status, current_location_id)
 VALUES (1, 1, 101, 22.5, 'checked-in', 'checked in', 1);
 ```
 
-### Step 5: Track Luggage Movement (Add to history)
+### Step 6: Track Luggage Movement (Add to history)
 
 ```sql
 -- Luggage checked in at Dhaka
@@ -213,7 +263,7 @@ VALUES (1, 'in transit', NOW(), 3);
 UPDATE Luggage SET current_location_id = 3, status = 'in transit' WHERE luggage_id = 1;
 ```
 
-### Step 6: Report Lost Luggage
+### Step 7: Report Lost Luggage
 
 ```sql
 INSERT INTO Reports (luggage_id, report_type, description, report_time, status, employee_id)
@@ -222,7 +272,26 @@ VALUES (1, 'lost', 'Luggage did not arrive at Rome Airport.', NOW(), 'pending', 
 UPDATE Luggage SET status = 'lost' WHERE luggage_id = 1;
 ```
 
-## Useful Queries for Reports
+## 📈 Useful Queries for Reports
+
+### Find Passenger Booking Details
+
+```sql
+SELECT
+    p.first_name,
+    p.last_name,
+    fb.booking_id,
+    fb.seat_number,
+    f.flight_number,
+    dep.city AS departure_city,
+    arr.city AS arrival_city
+FROM Passengers p
+JOIN Flight_Bookings fb ON p.passenger_id = fb.passenger_id
+JOIN Flights f ON fb.flight_id = f.flight_id
+JOIN Airport_Locations dep ON f.departure_airport_id = dep.location_id
+JOIN Airport_Locations arr ON f.arrival_airport_id = arr.location_id
+WHERE p.passenger_id = 1;
+```
 
 ### Find Current Location of Luggage
 
@@ -301,6 +370,33 @@ JOIN Luggage l ON r.luggage_id = l.luggage_id
 JOIN Passengers p ON l.passenger_id = p.passenger_id
 LEFT JOIN Employees e ON r.employee_id = e.employee_id
 WHERE r.status = 'pending';
+```
+
+### Show All Passengers and Their Luggage Count
+
+```sql
+SELECT
+    p.passenger_id,
+    p.first_name,
+    p.last_name,
+    COUNT(l.luggage_id) AS total_luggage
+FROM Passengers p
+LEFT JOIN Luggage l ON p.passenger_id = l.passenger_id
+GROUP BY p.passenger_id, p.first_name, p.last_name;
+```
+
+### Find All Flights Using a Specific Airport
+
+```sql
+SELECT
+    f.flight_number,
+    dep.city AS departure,
+    arr.city AS arrival,
+    f.departure_time
+FROM Flights f
+JOIN Airport_Locations dep ON f.departure_airport_id = dep.location_id
+JOIN Airport_Locations arr ON f.arrival_airport_id = arr.location_id
+WHERE f.departure_airport_id = 1 OR f.arrival_airport_id = 1;
 ```
 
 ## Tools & Technologies
