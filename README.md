@@ -441,3 +441,6 @@ The roadmap below outlines our **phased development plan** from academic prototy
 - Establish a **centralized Luggage Identity System** accessible by all airports and airlines in real time.
 
 ---
+### 🌟 Vision Statement
+> “To make air travel stress-free by ensuring **every bag has a digital identity — traceable, transparent, and always accounted for.**”
+
