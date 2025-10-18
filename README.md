@@ -400,3 +400,9 @@ WHERE f.departure_airport_id = 1 OR f.arrival_airport_id = 1;
 - **DBMS**: MySQL
 - **Backend (Optional)**: Node / Next.js
 - **Frontend (Optional)**: React / Next.js
+
+
+## 🚀 Future Vision & Roadmap
+
+We aim to transform this SQL-based **Luggage Tracking System** into a fully integrated, real-time airline management solution.  
+The roadmap below outlines our **phased development plan** from academic prototype to national-level deployment.
