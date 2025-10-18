@@ -412,6 +412,10 @@ The roadmap below outlines our **phased development plan** from academic prototy
 - Assign every bag a **unique digital Luggage ID** for scanning and tracking across all checkpoints.  
 - Integrate directly with **check-in counters, security zones, and baggage belts** through connected terminals and scanners.
 
+### 📡 Phase 3 — Real-Time Smart Tracking (IoT Integration)
+- Develop **IoT-enabled luggage tags** using RFID + GPS sensors.  
+- Provide passengers and staff a **live-tracking dashboard** (web + mobile).  
+- Send **automated alerts** on status changes — *arrived*, *delayed*, *misrouted*, etc.
 ### 🌍 Phase 2 — International Expansion
 - Extend coverage to **partner airports worldwide** for cross-border luggage tracking.  
 - Add **multi-language** and **multi-timezone** support for international operations.  
