@@ -427,3 +427,11 @@ The roadmap below outlines our **phased development plan** from academic prototy
 - Implement **machine-learning models** to predict potential baggage delays or losses based on flight patterns and weather.  
 - Use AI insights to help airlines **optimize luggage flow** and **reduce mishandling incidents**.
 
+
+
+### 🧩 Phase 5 — Passenger Portal & Mobile Access
+- Launch a secure **public web/mobile portal** where passengers can:
+  - Track luggage status in real time  
+  - View last scanned location  
+  - File or view reports on lost/delayed baggage  
+  - Chat with airline representatives
