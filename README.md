@@ -411,3 +411,8 @@ The roadmap below outlines our **phased development plan** from academic prototy
 - Collaborate with **domestic airlines and airports** to pilot the system using real flight and passenger data.  
 - Assign every bag a **unique digital Luggage ID** for scanning and tracking across all checkpoints.  
 - Integrate directly with **check-in counters, security zones, and baggage belts** through connected terminals and scanners.
+
+### 🌍 Phase 2 — International Expansion
+- Extend coverage to **partner airports worldwide** for cross-border luggage tracking.  
+- Add **multi-language** and **multi-timezone** support for international operations.  
+- Sync with **Airline Management Systems (AMS)** and **customs databases** to prevent lost or misrouted baggage.
