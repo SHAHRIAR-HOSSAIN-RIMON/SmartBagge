@@ -406,3 +406,8 @@ WHERE f.departure_airport_id = 1 OR f.arrival_airport_id = 1;
 
 We aim to transform this SQL-based **Luggage Tracking System** into a fully integrated, real-time airline management solution.  
 The roadmap below outlines our **phased development plan** from academic prototype to national-level deployment.
+
+### 🏢 Phase 1 — Integration with National Flights
+- Collaborate with **domestic airlines and airports** to pilot the system using real flight and passenger data.  
+- Assign every bag a **unique digital Luggage ID** for scanning and tracking across all checkpoints.  
+- Integrate directly with **check-in counters, security zones, and baggage belts** through connected terminals and scanners.
