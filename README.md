@@ -444,3 +444,9 @@ The roadmap below outlines our **phased development plan** from academic prototy
 ### 🌟 Vision Statement
 > “To make air travel stress-free by ensuring **every bag has a digital identity — traceable, transparent, and always accounted for.**”
 
+---
+
+⭐ **Contributors Welcome!**  
+If you’re interested in collaborating, optimizing performance, or integrating real-time tracking APIs, feel free to **open a pull request** or reach out via GitHub Discussions.
+
+---
