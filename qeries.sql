@@ -406,3 +406,66 @@ GROUP BY e.employee_id, e.first_name, e.last_name, e.role;
 
 SELECT '=== ALL OPERATIONS COMPLETED SUCCESSFULLY ===' AS final_status;
 
+
+-- =============================================
+-- 5️⃣ CRUD DEMONSTRATION SECTION
+-- =============================================
+
+-- C ➤ CREATE (already done through INSERT statements above)
+-- Example:
+-- INSERT INTO Passengers (passenger_id, first_name, last_name, passport_number, email, phone_number)
+-- VALUES (16, 'Oliver', 'Stone', 'P99887766', 'oliver.stone@example.com', '01755447788');
+
+-- R ➤ READ (already covered by the SELECT queries above)
+-- Example:
+-- SELECT * FROM Passengers;
+
+-- U ➤ UPDATE examples
+SELECT '=== UPDATE OPERATIONS ===' AS section_title;
+
+-- 1. Update passenger email and phone
+UPDATE Passengers
+SET email = 'john.updated@example.com',
+    phone_number = '01700000000'
+WHERE passenger_id = 1;
+
+-- 2. Update luggage status to "delivered"
+UPDATE Luggage
+SET status = 'delivered'
+WHERE luggage_id = 4;
+
+-- 3. Mark a report as resolved
+UPDATE Reports
+SET status = 'resolved'
+WHERE report_id = 1;
+
+-- 4. Change employee role
+UPDATE Employees
+SET role = 'Senior Baggage Handler'
+WHERE employee_id = 1;
+
+-- Verify updates
+SELECT * FROM Passengers WHERE passenger_id = 1;
+SELECT * FROM Luggage WHERE luggage_id = 4;
+SELECT * FROM Reports WHERE report_id = 1;
+SELECT * FROM Employees WHERE employee_id = 1;
+
+-- D ➤ DELETE examples
+SELECT '=== DELETE OPERATIONS ===' AS section_title;
+
+-- 1. Delete a passenger (only if no active luggage/bookings exist)
+DELETE FROM Passengers WHERE passenger_id = 15;
+
+-- 2. Delete a report marked as closed
+DELETE FROM Reports WHERE status = 'closed';
+
+-- 3. Remove a baggage status record (old timestamp)
+DELETE FROM Baggage_Status
+WHERE timestamp < '2025-10-17 00:00:00';
+
+-- Verify deletions
+SELECT * FROM Passengers;
+SELECT * FROM Reports;
+SELECT * FROM Baggage_Status;
+
+SELECT '=== CRUD OPERATIONS COMPLETED SUCCESSFULLY ===' AS crud_status;
