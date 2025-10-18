@@ -416,7 +416,14 @@ The roadmap below outlines our **phased development plan** from academic prototy
 - Develop **IoT-enabled luggage tags** using RFID + GPS sensors.  
 - Provide passengers and staff a **live-tracking dashboard** (web + mobile).  
 - Send **automated alerts** on status changes — *arrived*, *delayed*, *misrouted*, etc.
+
 ### 🌍 Phase 2 — International Expansion
 - Extend coverage to **partner airports worldwide** for cross-border luggage tracking.  
 - Add **multi-language** and **multi-timezone** support for international operations.  
 - Sync with **Airline Management Systems (AMS)** and **customs databases** to prevent lost or misrouted baggage.
+
+
+### 🤖 Phase 4 — Predictive Analytics & AI Assistance
+- Implement **machine-learning models** to predict potential baggage delays or losses based on flight patterns and weather.  
+- Use AI insights to help airlines **optimize luggage flow** and **reduce mishandling incidents**.
+
