@@ -298,10 +298,33 @@ INSERT INTO Reports (luggage_id, report_type, description, report_time, status, 
 SELECT '=== ALL DATA INSERTED SUCCESSFULLY ===' AS status;
 
 -- =============================================
--- 4️⃣ USEFUL QUERIES FOR ANALYSIS (WITH UPDATE + DELETE IN EACH)
+-- 4️⃣ SMARTBAGGAGE ANALYTICAL WORKFLOW (ORDERED)
 -- =============================================
 
--- Query 1: Passenger Booking Details
+-- ==========================================================
+-- STEP 1️⃣ : FLIGHT INFORMATION (before passenger activities)
+-- ==========================================================
+SELECT '=== FLIGHTS USING DUBAI AIRPORT ===' AS query_title;
+SELECT
+    f.flight_number,
+    dep.city AS departure,
+    arr.city AS arrival,
+    f.departure_time
+FROM Flights f
+JOIN Airport_Locations dep ON f.departure_airport_id = dep.location_id
+JOIN Airport_Locations arr ON f.arrival_airport_id = arr.location_id
+WHERE f.departure_airport_id = 3 OR f.arrival_airport_id = 3;
+
+-- UPDATE ➤ Delay a Dubai flight
+UPDATE Flights SET departure_time = DATE_ADD(departure_time, INTERVAL 1 HOUR) WHERE departure_airport_id = 3;
+
+-- DELETE ➤ Remove old flight record
+DELETE FROM Flights WHERE flight_id > 115;
+
+
+-- ==========================================================
+-- STEP 2️⃣ : PASSENGER & BOOKING DETAILS
+-- ==========================================================
 SELECT '=== PASSENGER BOOKING DETAILS ===' AS query_title;
 SELECT
     p.first_name,
@@ -325,7 +348,9 @@ UPDATE Passengers SET phone_number = '01700000000' WHERE passenger_id = 1;
 DELETE FROM Flight_Bookings WHERE booking_id = 1016;
 
 
--- Query 2: Current Luggage Location
+-- ==========================================================
+-- STEP 3️⃣ : LUGGAGE MANAGEMENT (current location + by flight)
+-- ==========================================================
 SELECT '=== CURRENT LUGGAGE LOCATION ===' AS query_title;
 SELECT
     l.luggage_id,
@@ -346,47 +371,6 @@ UPDATE Luggage SET status = 'arrived' WHERE luggage_id = 1;
 DELETE FROM Luggage WHERE luggage_id = 16;
 
 
--- Query 3: Complete Luggage Journey
-SELECT '=== COMPLETE LUGGAGE JOURNEY ===' AS query_title;
-SELECT
-    bs.status_id,
-    bs.status,
-    bs.timestamp,
-    al.location_name,
-    al.city
-FROM Baggage_Status bs
-JOIN Airport_Locations al ON bs.location_id = al.location_id
-WHERE bs.luggage_id = 1
-ORDER BY bs.timestamp;
-
--- UPDATE ➤ Adjust timestamp for clarity
-UPDATE Baggage_Status SET timestamp = '2025-10-15 08:00:00' WHERE status_id = 1;
-
--- DELETE ➤ Delete outdated status record
-DELETE FROM Baggage_Status WHERE timestamp < '2025-10-17 00:00:00';
-
-
--- Query 4: All Lost Luggage
-SELECT '=== ALL LOST LUGGAGE ===' AS query_title;
-SELECT
-    l.luggage_id,
-    p.first_name,
-    p.last_name,
-    f.flight_number,
-    l.status
-FROM Luggage l
-JOIN Passengers p ON l.passenger_id = p.passenger_id
-JOIN Flights f ON l.flight_id = f.flight_id
-WHERE l.status = 'lost';
-
--- UPDATE ➤ Recover lost luggage
-UPDATE Luggage SET status = 'found' WHERE status = 'lost' LIMIT 1;
-
--- DELETE ➤ Delete duplicate lost luggage records
-DELETE FROM Luggage WHERE status = 'lost' AND luggage_id > 20;
-
-
--- Query 5: Luggage on Specific Flight (BG201)
 SELECT '=== LUGGAGE ON FLIGHT BG201 ===' AS query_title;
 SELECT
     l.luggage_id,
@@ -408,7 +392,53 @@ UPDATE Luggage SET weight = 23.0 WHERE flight_id = 101 AND luggage_id = 1;
 DELETE FROM Luggage WHERE flight_id = 101 AND luggage_id = 16;
 
 
--- Query 6: Pending Reports
+-- ==========================================================
+-- STEP 4️⃣ : LUGGAGE JOURNEY HISTORY
+-- ==========================================================
+SELECT '=== COMPLETE LUGGAGE JOURNEY ===' AS query_title;
+SELECT
+    bs.status_id,
+    bs.status,
+    bs.timestamp,
+    al.location_name,
+    al.city
+FROM Baggage_Status bs
+JOIN Airport_Locations al ON bs.location_id = al.location_id
+WHERE bs.luggage_id = 1
+ORDER BY bs.timestamp;
+
+-- UPDATE ➤ Adjust timestamp for clarity
+UPDATE Baggage_Status SET timestamp = '2025-10-15 08:00:00' WHERE status_id = 1;
+
+-- DELETE ➤ Delete outdated status record
+DELETE FROM Baggage_Status WHERE timestamp < '2025-10-17 00:00:00';
+
+
+-- ==========================================================
+-- STEP 5️⃣ : LOST / FOUND LUGGAGE
+-- ==========================================================
+SELECT '=== ALL LOST LUGGAGE ===' AS query_title;
+SELECT
+    l.luggage_id,
+    p.first_name,
+    p.last_name,
+    f.flight_number,
+    l.status
+FROM Luggage l
+JOIN Passengers p ON l.passenger_id = p.passenger_id
+JOIN Flights f ON l.flight_id = f.flight_id
+WHERE l.status = 'lost';
+
+-- UPDATE ➤ Recover lost luggage
+UPDATE Luggage SET status = 'found' WHERE status = 'lost' LIMIT 1;
+
+-- DELETE ➤ Delete duplicate lost luggage records
+DELETE FROM Luggage WHERE status = 'lost' AND luggage_id > 20;
+
+
+-- ==========================================================
+-- STEP 6️⃣ : REPORTS & ISSUES
+-- ==========================================================
 SELECT '=== PENDING REPORTS ===' AS query_title;
 SELECT
     r.report_id,
@@ -430,7 +460,9 @@ UPDATE Reports SET status = 'resolved' WHERE status = 'pending' LIMIT 1;
 DELETE FROM Reports WHERE status = 'resolved' AND report_time < '2025-10-20';
 
 
--- Query 7: Passengers and Luggage Count
+-- ==========================================================
+-- STEP 7️⃣ : ANALYTICS - PASSENGER, LUGGAGE, EMPLOYEE
+-- ==========================================================
 SELECT '=== PASSENGERS AND LUGGAGE COUNT ===' AS query_title;
 SELECT
     p.passenger_id,
@@ -448,26 +480,6 @@ UPDATE Passengers SET first_name = 'Jon' WHERE first_name = 'John';
 DELETE FROM Passengers WHERE passenger_id NOT IN (SELECT DISTINCT passenger_id FROM Luggage);
 
 
--- Query 8: Flights Using Dubai Airport
-SELECT '=== FLIGHTS USING DUBAI AIRPORT ===' AS query_title;
-SELECT
-    f.flight_number,
-    dep.city AS departure,
-    arr.city AS arrival,
-    f.departure_time
-FROM Flights f
-JOIN Airport_Locations dep ON f.departure_airport_id = dep.location_id
-JOIN Airport_Locations arr ON f.arrival_airport_id = arr.location_id
-WHERE f.departure_airport_id = 3 OR f.arrival_airport_id = 3;
-
--- UPDATE ➤ Delay a Dubai flight
-UPDATE Flights SET departure_time = DATE_ADD(departure_time, INTERVAL 1 HOUR) WHERE departure_airport_id = 3;
-
--- DELETE ➤ Remove old flight record
-DELETE FROM Flights WHERE flight_id > 115;
-
-
--- Query 9: Luggage Status Summary
 SELECT '=== LUGGAGE STATUS SUMMARY ===' AS query_title;
 SELECT 
     status,
@@ -483,7 +495,6 @@ UPDATE Luggage SET status = 'Checked-In' WHERE status = 'checked-in';
 DELETE FROM Luggage WHERE status = 'temporary';
 
 
--- Query 10: Employee Assignment Summary
 SELECT '=== EMPLOYEE REPORT ASSIGNMENTS ===' AS query_title;
 SELECT
     e.employee_id,
@@ -500,4 +511,8 @@ UPDATE Employees SET role = 'Senior Supervisor' WHERE employee_id = 3;
 -- DELETE ➤ Remove inactive employees
 DELETE FROM Employees WHERE employee_id > 15;
 
+
+-- ==========================================================
+-- STEP 8️⃣ : END STATUS
+-- ==========================================================
 SELECT '=== ALL OPERATIONS COMPLETED SUCCESSFULLY ===' AS final_status;
