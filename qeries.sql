@@ -19,6 +19,11 @@ DROP TABLE IF EXISTS Airport_Locations;
 -- =============================================
 
 -- Airport_Locations Table (Create FIRST)
+-- =============================================
+-- ✅ FIXED TABLE STRUCTURE (With Safe CASCADING)
+-- =============================================
+
+-- Airport_Locations Table
 CREATE TABLE Airport_Locations (
     location_id INT PRIMARY KEY,
     airport_code VARCHAR(10) UNIQUE,
@@ -35,8 +40,12 @@ CREATE TABLE Flights (
     arrival_airport_id INT,
     departure_time DATETIME,
     arrival_time DATETIME,
-    FOREIGN KEY (departure_airport_id) REFERENCES Airport_Locations(location_id),
-    FOREIGN KEY (arrival_airport_id) REFERENCES Airport_Locations(location_id)
+    FOREIGN KEY (departure_airport_id)
+        REFERENCES Airport_Locations(location_id)
+        ON DELETE CASCADE ON UPDATE CASCADE,
+    FOREIGN KEY (arrival_airport_id)
+        REFERENCES Airport_Locations(location_id)
+        ON DELETE CASCADE ON UPDATE CASCADE
 );
 
 -- Passengers Table
@@ -56,8 +65,12 @@ CREATE TABLE Flight_Bookings (
     flight_id INT,
     booking_date DATETIME,
     seat_number VARCHAR(10),
-    FOREIGN KEY (passenger_id) REFERENCES Passengers(passenger_id),
-    FOREIGN KEY (flight_id) REFERENCES Flights(flight_id)
+    FOREIGN KEY (passenger_id)
+        REFERENCES Passengers(passenger_id)
+        ON DELETE CASCADE ON UPDATE CASCADE,
+    FOREIGN KEY (flight_id)
+        REFERENCES Flights(flight_id)
+        ON DELETE CASCADE ON UPDATE CASCADE
 );
 
 -- Luggage Table
@@ -69,9 +82,15 @@ CREATE TABLE Luggage (
     type VARCHAR(50),
     status VARCHAR(50),
     current_location_id INT,
-    FOREIGN KEY (passenger_id) REFERENCES Passengers(passenger_id),
-    FOREIGN KEY (flight_id) REFERENCES Flights(flight_id),
-    FOREIGN KEY (current_location_id) REFERENCES Airport_Locations(location_id)
+    FOREIGN KEY (passenger_id)
+        REFERENCES Passengers(passenger_id)
+        ON DELETE CASCADE ON UPDATE CASCADE,
+    FOREIGN KEY (flight_id)
+        REFERENCES Flights(flight_id)
+        ON DELETE CASCADE ON UPDATE CASCADE,
+    FOREIGN KEY (current_location_id)
+        REFERENCES Airport_Locations(location_id)
+        ON DELETE SET NULL ON UPDATE CASCADE
 );
 
 -- Baggage_Status Table
@@ -81,8 +100,12 @@ CREATE TABLE Baggage_Status (
     status VARCHAR(50),
     timestamp DATETIME,
     location_id INT,
-    FOREIGN KEY (luggage_id) REFERENCES Luggage(luggage_id),
-    FOREIGN KEY (location_id) REFERENCES Airport_Locations(location_id)
+    FOREIGN KEY (luggage_id)
+        REFERENCES Luggage(luggage_id)
+        ON DELETE CASCADE ON UPDATE CASCADE,
+    FOREIGN KEY (location_id)
+        REFERENCES Airport_Locations(location_id)
+        ON DELETE SET NULL ON UPDATE CASCADE
 );
 
 -- Employees Table
@@ -104,8 +127,12 @@ CREATE TABLE Reports (
     report_time DATETIME,
     status VARCHAR(50),
     employee_id INT,
-    FOREIGN KEY (luggage_id) REFERENCES Luggage(luggage_id),
-    FOREIGN KEY (employee_id) REFERENCES Employees(employee_id)
+    FOREIGN KEY (luggage_id)
+        REFERENCES Luggage(luggage_id)
+        ON DELETE CASCADE ON UPDATE CASCADE,
+    FOREIGN KEY (employee_id)
+        REFERENCES Employees(employee_id)
+        ON DELETE SET NULL ON UPDATE CASCADE
 );
 
 SELECT '=== ALL TABLES CREATED SUCCESSFULLY ===' AS status;
@@ -271,7 +298,7 @@ INSERT INTO Reports (luggage_id, report_type, description, report_time, status, 
 SELECT '=== ALL DATA INSERTED SUCCESSFULLY ===' AS status;
 
 -- =============================================
--- 4️⃣ USEFUL QUERIES FOR ANALYSIS
+-- 4️⃣ USEFUL QUERIES FOR ANALYSIS (WITH UPDATE + DELETE IN EACH)
 -- =============================================
 
 -- Query 1: Passenger Booking Details
@@ -291,6 +318,13 @@ JOIN Airport_Locations dep ON f.departure_airport_id = dep.location_id
 JOIN Airport_Locations arr ON f.arrival_airport_id = arr.location_id
 WHERE p.passenger_id = 1;
 
+-- UPDATE ➤ Change passenger phone number
+UPDATE Passengers SET phone_number = '01700000000' WHERE passenger_id = 1;
+
+-- DELETE ➤ Delete a canceled booking (if exists)
+DELETE FROM Flight_Bookings WHERE booking_id = 1016;
+
+
 -- Query 2: Current Luggage Location
 SELECT '=== CURRENT LUGGAGE LOCATION ===' AS query_title;
 SELECT
@@ -305,6 +339,13 @@ JOIN Passengers p ON l.passenger_id = p.passenger_id
 JOIN Airport_Locations al ON l.current_location_id = al.location_id
 WHERE l.luggage_id = 1;
 
+-- UPDATE ➤ Mark luggage as 'arrived'
+UPDATE Luggage SET status = 'arrived' WHERE luggage_id = 1;
+
+-- DELETE ➤ Remove luggage entry for testing
+DELETE FROM Luggage WHERE luggage_id = 16;
+
+
 -- Query 3: Complete Luggage Journey
 SELECT '=== COMPLETE LUGGAGE JOURNEY ===' AS query_title;
 SELECT
@@ -318,6 +359,13 @@ JOIN Airport_Locations al ON bs.location_id = al.location_id
 WHERE bs.luggage_id = 1
 ORDER BY bs.timestamp;
 
+-- UPDATE ➤ Adjust timestamp for clarity
+UPDATE Baggage_Status SET timestamp = '2025-10-15 08:00:00' WHERE status_id = 1;
+
+-- DELETE ➤ Delete outdated status record
+DELETE FROM Baggage_Status WHERE timestamp < '2025-10-17 00:00:00';
+
+
 -- Query 4: All Lost Luggage
 SELECT '=== ALL LOST LUGGAGE ===' AS query_title;
 SELECT
@@ -330,6 +378,13 @@ FROM Luggage l
 JOIN Passengers p ON l.passenger_id = p.passenger_id
 JOIN Flights f ON l.flight_id = f.flight_id
 WHERE l.status = 'lost';
+
+-- UPDATE ➤ Recover lost luggage
+UPDATE Luggage SET status = 'found' WHERE status = 'lost' LIMIT 1;
+
+-- DELETE ➤ Delete duplicate lost luggage records
+DELETE FROM Luggage WHERE status = 'lost' AND luggage_id > 20;
+
 
 -- Query 5: Luggage on Specific Flight (BG201)
 SELECT '=== LUGGAGE ON FLIGHT BG201 ===' AS query_title;
@@ -346,6 +401,13 @@ JOIN Passengers p ON l.passenger_id = p.passenger_id
 JOIN Airport_Locations al ON l.current_location_id = al.location_id
 WHERE l.flight_id = 101;
 
+-- UPDATE ➤ Update luggage weight for correction
+UPDATE Luggage SET weight = 23.0 WHERE flight_id = 101 AND luggage_id = 1;
+
+-- DELETE ➤ Remove test luggage linked to BG201
+DELETE FROM Luggage WHERE flight_id = 101 AND luggage_id = 16;
+
+
 -- Query 6: Pending Reports
 SELECT '=== PENDING REPORTS ===' AS query_title;
 SELECT
@@ -361,6 +423,13 @@ JOIN Passengers p ON l.passenger_id = p.passenger_id
 LEFT JOIN Employees e ON r.employee_id = e.employee_id
 WHERE r.status = 'pending';
 
+-- UPDATE ➤ Mark one report as resolved
+UPDATE Reports SET status = 'resolved' WHERE status = 'pending' LIMIT 1;
+
+-- DELETE ➤ Remove old resolved reports
+DELETE FROM Reports WHERE status = 'resolved' AND report_time < '2025-10-20';
+
+
 -- Query 7: Passengers and Luggage Count
 SELECT '=== PASSENGERS AND LUGGAGE COUNT ===' AS query_title;
 SELECT
@@ -371,6 +440,13 @@ SELECT
 FROM Passengers p
 LEFT JOIN Luggage l ON p.passenger_id = l.passenger_id
 GROUP BY p.passenger_id, p.first_name, p.last_name;
+
+-- UPDATE ➤ Correct passenger name typo
+UPDATE Passengers SET first_name = 'Jon' WHERE first_name = 'John';
+
+-- DELETE ➤ Remove passenger with no luggage
+DELETE FROM Passengers WHERE passenger_id NOT IN (SELECT DISTINCT passenger_id FROM Luggage);
+
 
 -- Query 8: Flights Using Dubai Airport
 SELECT '=== FLIGHTS USING DUBAI AIRPORT ===' AS query_title;
@@ -384,6 +460,13 @@ JOIN Airport_Locations dep ON f.departure_airport_id = dep.location_id
 JOIN Airport_Locations arr ON f.arrival_airport_id = arr.location_id
 WHERE f.departure_airport_id = 3 OR f.arrival_airport_id = 3;
 
+-- UPDATE ➤ Delay a Dubai flight
+UPDATE Flights SET departure_time = DATE_ADD(departure_time, INTERVAL 1 HOUR) WHERE departure_airport_id = 3;
+
+-- DELETE ➤ Remove old flight record
+DELETE FROM Flights WHERE flight_id > 115;
+
+
 -- Query 9: Luggage Status Summary
 SELECT '=== LUGGAGE STATUS SUMMARY ===' AS query_title;
 SELECT 
@@ -392,6 +475,13 @@ SELECT
     ROUND(COUNT(*) * 100.0 / (SELECT COUNT(*) FROM Luggage), 2) as percentage
 FROM Luggage 
 GROUP BY status;
+
+-- UPDATE ➤ Normalize status text
+UPDATE Luggage SET status = 'Checked-In' WHERE status = 'checked-in';
+
+-- DELETE ➤ Remove temporary luggage data
+DELETE FROM Luggage WHERE status = 'temporary';
+
 
 -- Query 10: Employee Assignment Summary
 SELECT '=== EMPLOYEE REPORT ASSIGNMENTS ===' AS query_title;
@@ -404,68 +494,10 @@ FROM Employees e
 LEFT JOIN Reports r ON e.employee_id = r.employee_id
 GROUP BY e.employee_id, e.first_name, e.last_name, e.role;
 
+-- UPDATE ➤ Promote employee
+UPDATE Employees SET role = 'Senior Supervisor' WHERE employee_id = 3;
+
+-- DELETE ➤ Remove inactive employees
+DELETE FROM Employees WHERE employee_id > 15;
+
 SELECT '=== ALL OPERATIONS COMPLETED SUCCESSFULLY ===' AS final_status;
-
-
--- =============================================
--- 5️⃣ CRUD DEMONSTRATION SECTION
--- =============================================
-
--- C ➤ CREATE (already done through INSERT statements above)
--- Example:
--- INSERT INTO Passengers (passenger_id, first_name, last_name, passport_number, email, phone_number)
--- VALUES (16, 'Oliver', 'Stone', 'P99887766', 'oliver.stone@example.com', '01755447788');
-
--- R ➤ READ (already covered by the SELECT queries above)
--- Example:
--- SELECT * FROM Passengers;
-
--- U ➤ UPDATE examples
-SELECT '=== UPDATE OPERATIONS ===' AS section_title;
-
--- 1. Update passenger email and phone
-UPDATE Passengers
-SET email = 'john.updated@example.com',
-    phone_number = '01700000000'
-WHERE passenger_id = 1;
-
--- 2. Update luggage status to "delivered"
-UPDATE Luggage
-SET status = 'delivered'
-WHERE luggage_id = 4;
-
--- 3. Mark a report as resolved
-UPDATE Reports
-SET status = 'resolved'
-WHERE report_id = 1;
-
--- 4. Change employee role
-UPDATE Employees
-SET role = 'Senior Baggage Handler'
-WHERE employee_id = 1;
-
--- Verify updates
-SELECT * FROM Passengers WHERE passenger_id = 1;
-SELECT * FROM Luggage WHERE luggage_id = 4;
-SELECT * FROM Reports WHERE report_id = 1;
-SELECT * FROM Employees WHERE employee_id = 1;
-
--- D ➤ DELETE examples
-SELECT '=== DELETE OPERATIONS ===' AS section_title;
-
--- 1. Delete a passenger (only if no active luggage/bookings exist)
-DELETE FROM Passengers WHERE passenger_id = 15;
-
--- 2. Delete a report marked as closed
-DELETE FROM Reports WHERE status = 'closed';
-
--- 3. Remove a baggage status record (old timestamp)
-DELETE FROM Baggage_Status
-WHERE timestamp < '2025-10-17 00:00:00';
-
--- Verify deletions
-SELECT * FROM Passengers;
-SELECT * FROM Reports;
-SELECT * FROM Baggage_Status;
-
-SELECT '=== CRUD OPERATIONS COMPLETED SUCCESSFULLY ===' AS crud_status;
