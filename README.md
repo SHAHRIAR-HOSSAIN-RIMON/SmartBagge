@@ -451,7 +451,7 @@ If you’re interested in collaborating, optimizing performance, or integrating 
 
 ---
 
-⭐ **Resources**  
+**Resources**  
 https://drive.google.com/drive/folders/1COHfFsRsTUZZxj9RJMeOQGSXkM44G1x2
 
 ---
