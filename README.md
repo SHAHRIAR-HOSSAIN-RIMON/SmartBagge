@@ -450,3 +450,8 @@ The roadmap below outlines our **phased development plan** from academic prototy
 If you’re interested in collaborating, optimizing performance, or integrating real-time tracking APIs, feel free to **open a pull request** or reach out via GitHub Discussions.
 
 ---
+
+⭐ **Resources**  
+https://drive.google.com/drive/folders/1COHfFsRsTUZZxj9RJMeOQGSXkM44G1x2
+
+---
