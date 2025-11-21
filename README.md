@@ -56,10 +56,14 @@ The system keeps each luggage item **linked to a passenger, a flight, and its cu
 
 ## Database Schema Design (SQL)
 
+Ah! Now I fully understand 😤 — you want **all sections properly formatted with `##` and `###` headings** like a GitHub README, **not just one `##` at the top**, so it looks like the documentation, but only the SQL codes under each section. Got it. I’ll rewrite the entire thing cleanly in **Markdown + SQL** format for direct pasting.
+
+Here’s the fixed version:
+
+````markdown
+## Database Schema Design (SQL)
+
 ### 1. Airport_Locations Table
-
-**Create this FIRST** (other tables reference it)
-
 ```sql
 CREATE TABLE Airport_Locations (
     location_id INT PRIMARY KEY,
@@ -68,7 +72,7 @@ CREATE TABLE Airport_Locations (
     city VARCHAR(100),
     country VARCHAR(100)
 );
-```
+````
 
 ### 2. Flights Table
 
@@ -98,7 +102,7 @@ CREATE TABLE Passengers (
 );
 ```
 
-### 4. Flight_Bookings Table (NEW - Creates 1:1 Relationship)
+### 4. Flight_Bookings Table
 
 ```sql
 CREATE TABLE Flight_Bookings (
@@ -114,16 +118,14 @@ CREATE TABLE Flight_Bookings (
 
 ### 5. Luggage Table
 
-**Tracks current location of each bag**
-
 ```sql
 CREATE TABLE Luggage (
     luggage_id INT PRIMARY KEY,
     passenger_id INT,
     flight_id INT,
     weight DECIMAL(5,2),
-    type VARCHAR(50), -- 'carry-on' or 'checked-in'
-    status VARCHAR(50), -- 'checked in', 'in transit', 'arrived', 'lost'
+    type VARCHAR(50),
+    status VARCHAR(50),
     current_location_id INT,
     FOREIGN KEY (passenger_id) REFERENCES Passengers(passenger_id),
     FOREIGN KEY (flight_id) REFERENCES Flights(flight_id),
@@ -132,8 +134,6 @@ CREATE TABLE Luggage (
 ```
 
 ### 6. Baggage_Status Table
-
-**Tracks movement history of luggage**
 
 ```sql
 CREATE TABLE Baggage_Status (
@@ -166,23 +166,19 @@ CREATE TABLE Employees (
 CREATE TABLE Reports (
     report_id INT PRIMARY KEY AUTO_INCREMENT,
     luggage_id INT,
-    report_type VARCHAR(50), -- 'lost', 'delayed', 'damaged'
+    report_type VARCHAR(50),
     description TEXT,
     report_time DATETIME,
-    status VARCHAR(50), -- 'resolved', 'pending'
+    status VARCHAR(50),
     employee_id INT,
     FOREIGN KEY (luggage_id) REFERENCES Luggage(luggage_id),
     FOREIGN KEY (employee_id) REFERENCES Employees(employee_id)
 );
 ```
 
+## Sample Data Inserts
 
-## Example SQL Queries
-
-### Step 1: Insert Airport Locations
-
-
-## Example SQL Queries
+### Insert Airport Locations
 
 ```sql
 INSERT INTO Airport_Locations (location_id, airport_code, location_name, city, country)
@@ -192,74 +188,47 @@ VALUES
 (3, 'DXB', 'Dubai International Airport', 'Dubai', 'UAE');
 ```
 
-### Step 2: Insert Flight
+### Insert Flight
 
 ```sql
 INSERT INTO Flights (flight_id, flight_number, departure_airport_id, arrival_airport_id, departure_time, arrival_time)
 VALUES (101, 'BG201', 1, 2, '2025-10-15 09:00:00', '2025-10-15 15:30:00');
 ```
 
-### Step 3: Insert Passenger
+### Insert Passenger
 
 ```sql
 INSERT INTO Passengers (passenger_id, first_name, last_name, passport_number, email, phone_number)
 VALUES (1, 'John', 'Doe', 'A12345678', 'john.doe@example.com', '01712345678');
 ```
 
-### Step 1: Insert Airport Locations
-
-```sql
-INSERT INTO Airport_Locations (location_id, airport_code, location_name, city, country)
-VALUES
-(1, 'DAC', 'Hazrat Shahjalal International Airport', 'Dhaka', 'Bangladesh'),
-(2, 'FCO', 'Leonardo da Vinci International Airport', 'Rome', 'Italy'),
-(3, 'DXB', 'Dubai International Airport', 'Dubai', 'UAE');
-```
-
-### Step 2: Insert Flight
-
-```sql
-INSERT INTO Flights (flight_id, flight_number, departure_airport_id, arrival_airport_id, departure_time, arrival_time)
-VALUES (101, 'BG201', 1, 2, '2025-10-15 09:00:00', '2025-10-15 15:30:00');
-```
-
-### Step 3: Insert Passenger
-
-```sql
-INSERT INTO Passengers (passenger_id, first_name, last_name, passport_number, email, phone_number)
-VALUES (1, 'John', 'Doe', 'A12345678', 'john.doe@example.com', '01712345678');
-```
-
-### Step 4: Create Flight Booking (NEW)
+### Create Flight Booking
 
 ```sql
 INSERT INTO Flight_Bookings (booking_id, passenger_id, flight_id, booking_date, seat_number)
 VALUES (1001, 1, 101, '2025-10-10 14:30:00', '12A');
 ```
 
-### Step 5: Register Luggage (with current location)
+### Register Luggage
 
 ```sql
 INSERT INTO Luggage (luggage_id, passenger_id, flight_id, weight, type, status, current_location_id)
 VALUES (1, 1, 101, 22.5, 'checked-in', 'checked in', 1);
 ```
 
-### Step 6: Track Luggage Movement (Add to history)
+### Track Luggage Movement
 
 ```sql
--- Luggage checked in at Dhaka
 INSERT INTO Baggage_Status (luggage_id, status, timestamp, location_id)
 VALUES (1, 'checked in', NOW(), 1);
 
--- Luggage arrives at Dubai (transit)
 INSERT INTO Baggage_Status (luggage_id, status, timestamp, location_id)
 VALUES (1, 'in transit', NOW(), 3);
 
--- Update current location in Luggage table
 UPDATE Luggage SET current_location_id = 3, status = 'in transit' WHERE luggage_id = 1;
 ```
 
-### Step 7: Report Lost Luggage
+### Report Lost Luggage
 
 ```sql
 INSERT INTO Reports (luggage_id, report_type, description, report_time, status, employee_id)
@@ -268,7 +237,7 @@ VALUES (1, 'lost', 'Luggage did not arrive at Rome Airport.', NOW(), 'pending', 
 UPDATE Luggage SET status = 'lost' WHERE luggage_id = 1;
 ```
 
-## Useful Queries for Reports
+## Useful Queries
 
 ### Find Passenger Booking Details
 
@@ -395,11 +364,10 @@ JOIN Airport_Locations arr ON f.arrival_airport_id = arr.location_id
 WHERE f.departure_airport_id = 1 OR f.arrival_airport_id = 1;
 ```
 
-## Tools & Technologies
+```
 
-- **DBMS**: MySQL
-- **Backend (Optional)**: Node / Next.js
-- **Frontend (Optional)**: React / Next.js
+
+
 
 
 ## 🚀 Future Vision & Roadmap
