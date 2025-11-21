@@ -295,45 +295,24 @@ INSERT INTO Reports (luggage_id, report_type, description, report_time, status, 
 (3, 'info', 'Rechecked baggage after security.', '2025-10-15 19:00:00', 'closed', 4),
 (4, 'arrived', 'Confirmed received by passenger.', '2025-10-17 19:00:00', 'closed', 2);
 
-SELECT '=== ALL DATA INSERTED SUCCESSFULLY ===' AS status;
-
 -- =============================================
--- 4️⃣ SMARTBAGGAGE ANALYTICAL WORKFLOW (ORDERED)
+-- SMARTBAGGAGE QUERIES - READY TO PASTE
 -- =============================================
 
--- ==========================================================
--- STEP 1️⃣ : FLIGHT INFORMATION (before passenger activities)
--- ==========================================================
+-- A1: FLIGHTS USING DUBAI AIRPORT
 SELECT '=== FLIGHTS USING DUBAI AIRPORT ===' AS query_title;
-SELECT
-    f.flight_number,
-    dep.city AS departure,
-    arr.city AS arrival,
-    f.departure_time
+SELECT f.flight_number, dep.city AS departure, arr.city AS arrival, f.departure_time
 FROM Flights f
 JOIN Airport_Locations dep ON f.departure_airport_id = dep.location_id
 JOIN Airport_Locations arr ON f.arrival_airport_id = arr.location_id
 WHERE f.departure_airport_id = 3 OR f.arrival_airport_id = 3;
 
--- UPDATE ➤ Delay a Dubai flight
-UPDATE Flights SET departure_time = DATE_ADD(departure_time, INTERVAL 1 HOUR) WHERE departure_airport_id = 3;
+-- ---------------------------------------------------------------------
 
--- DELETE ➤ Remove old flight record
-DELETE FROM Flights WHERE flight_id > 115;
-
-
--- ==========================================================
--- STEP 2️⃣ : PASSENGER & BOOKING DETAILS
--- ==========================================================
+-- A2: PASSENGER BOOKING DETAILS (passenger_id = 1)
 SELECT '=== PASSENGER BOOKING DETAILS ===' AS query_title;
-SELECT
-    p.first_name,
-    p.last_name,
-    fb.booking_id,
-    fb.seat_number,
-    f.flight_number,
-    dep.city AS departure_city,
-    arr.city AS arrival_city
+SELECT p.first_name, p.last_name, fb.booking_id, fb.seat_number, f.flight_number,
+       dep.city AS departure_city, arr.city AS arrival_city
 FROM Passengers p
 JOIN Flight_Bookings fb ON p.passenger_id = fb.passenger_id
 JOIN Flights f ON fb.flight_id = f.flight_id
@@ -341,178 +320,211 @@ JOIN Airport_Locations dep ON f.departure_airport_id = dep.location_id
 JOIN Airport_Locations arr ON f.arrival_airport_id = arr.location_id
 WHERE p.passenger_id = 1;
 
--- UPDATE ➤ Change passenger phone number
-UPDATE Passengers SET phone_number = '01700000000' WHERE passenger_id = 1;
+-- ---------------------------------------------------------------------
 
--- DELETE ➤ Delete a canceled booking (if exists)
-DELETE FROM Flight_Bookings WHERE booking_id = 1016;
-
-
--- ==========================================================
--- STEP 3️⃣ : LUGGAGE MANAGEMENT (current location + by flight)
--- ==========================================================
+-- A3: CURRENT LUGGAGE LOCATION (luggage_id = 1)
 SELECT '=== CURRENT LUGGAGE LOCATION ===' AS query_title;
-SELECT
-    l.luggage_id,
-    p.first_name,
-    p.last_name,
-    l.status,
-    al.location_name AS current_location,
-    al.city
+SELECT l.luggage_id, CONCAT(p.first_name,' ',p.last_name) AS passenger, l.status,
+       al.location_name AS current_location, al.city
 FROM Luggage l
 JOIN Passengers p ON l.passenger_id = p.passenger_id
-JOIN Airport_Locations al ON l.current_location_id = al.location_id
+LEFT JOIN Airport_Locations al ON l.current_location_id = al.location_id
 WHERE l.luggage_id = 1;
 
--- UPDATE ➤ Mark luggage as 'arrived'
-UPDATE Luggage SET status = 'arrived' WHERE luggage_id = 1;
+-- ---------------------------------------------------------------------
 
--- DELETE ➤ Remove luggage entry for testing
-DELETE FROM Luggage WHERE luggage_id = 16;
-
-
-SELECT '=== LUGGAGE ON FLIGHT BG201 ===' AS query_title;
-SELECT
-    l.luggage_id,
-    p.first_name,
-    p.last_name,
-    l.weight,
-    l.type,
-    l.status,
-    al.location_name AS current_location
-FROM Luggage l
-JOIN Passengers p ON l.passenger_id = p.passenger_id
-JOIN Airport_Locations al ON l.current_location_id = al.location_id
-WHERE l.flight_id = 101;
-
--- UPDATE ➤ Update luggage weight for correction
-UPDATE Luggage SET weight = 23.0 WHERE flight_id = 101 AND luggage_id = 1;
-
--- DELETE ➤ Remove test luggage linked to BG201
-DELETE FROM Luggage WHERE flight_id = 101 AND luggage_id = 16;
-
-
--- ==========================================================
--- STEP 4️⃣ : LUGGAGE JOURNEY HISTORY
--- ==========================================================
-SELECT '=== COMPLETE LUGGAGE JOURNEY ===' AS query_title;
-SELECT
-    bs.status_id,
-    bs.status,
-    bs.timestamp,
-    al.location_name,
-    al.city
-FROM Baggage_Status bs
-JOIN Airport_Locations al ON bs.location_id = al.location_id
-WHERE bs.luggage_id = 1
-ORDER BY bs.timestamp;
-
--- UPDATE ➤ Adjust timestamp for clarity
-UPDATE Baggage_Status SET timestamp = '2025-10-15 08:00:00' WHERE status_id = 1;
-
--- DELETE ➤ Delete outdated status record
-DELETE FROM Baggage_Status WHERE timestamp < '2025-10-17 00:00:00';
-
-
--- ==========================================================
--- STEP 5️⃣ : LOST / FOUND LUGGAGE
--- ==========================================================
-SELECT '=== ALL LOST LUGGAGE ===' AS query_title;
-SELECT
-    l.luggage_id,
-    p.first_name,
-    p.last_name,
-    f.flight_number,
-    l.status
+-- A4: LIST ALL 'LOST' LUGGAGE
+SELECT '=== LOST LUGGAGE ===' AS query_title;
+SELECT l.luggage_id, CONCAT(p.first_name, ' ', p.last_name) AS passenger, f.flight_number, l.status
 FROM Luggage l
 JOIN Passengers p ON l.passenger_id = p.passenger_id
 JOIN Flights f ON l.flight_id = f.flight_id
 WHERE l.status = 'lost';
 
--- UPDATE ➤ Recover lost luggage
-UPDATE Luggage SET status = 'found' WHERE status = 'lost' LIMIT 1;
+-- ---------------------------------------------------------------------
 
--- DELETE ➤ Delete duplicate lost luggage records
-DELETE FROM Luggage WHERE status = 'lost' AND luggage_id > 20;
-
-
--- ==========================================================
--- STEP 6️⃣ : REPORTS & ISSUES
--- ==========================================================
+-- A5: PENDING REPORTS WITH ASSIGNED EMPLOYEE
 SELECT '=== PENDING REPORTS ===' AS query_title;
-SELECT
-    r.report_id,
-    r.report_type,
-    r.description,
-    p.first_name,
-    p.last_name,
-    CONCAT(e.first_name, ' ', e.last_name) AS employee_name
+SELECT r.report_id, r.report_type, r.description, p.first_name, p.last_name,
+       CONCAT(e.first_name, ' ', e.last_name) AS employee_name
 FROM Reports r
 JOIN Luggage l ON r.luggage_id = l.luggage_id
 JOIN Passengers p ON l.passenger_id = p.passenger_id
 LEFT JOIN Employees e ON r.employee_id = e.employee_id
 WHERE r.status = 'pending';
 
--- UPDATE ➤ Mark one report as resolved
-UPDATE Reports SET status = 'resolved' WHERE status = 'pending' LIMIT 1;
+-- ---------------------------------------------------------------------
 
--- DELETE ➤ Remove old resolved reports
-DELETE FROM Reports WHERE status = 'resolved' AND report_time < '2025-10-20';
+-- A6: COUNT LUGGAGE ON A PARTICULAR FLIGHT (flight_id = 101)
+SELECT '=== LUGGAGE COUNT PER FLIGHT ===' AS query_title;
+SELECT f.flight_id, f.flight_number, COUNT(l.luggage_id) AS luggage_count
+FROM Flights f
+LEFT JOIN Luggage l ON f.flight_id = l.flight_id
+WHERE f.flight_id = 101
+GROUP BY f.flight_id, f.flight_number;
 
+-- ---------------------------------------------------------------------
 
--- ==========================================================
--- STEP 7️⃣ : ANALYTICS - PASSENGER, LUGGAGE, EMPLOYEE
--- ==========================================================
-SELECT '=== PASSENGERS AND LUGGAGE COUNT ===' AS query_title;
-SELECT
-    p.passenger_id,
-    p.first_name,
-    p.last_name,
-    COUNT(l.luggage_id) AS total_luggage
-FROM Passengers p
-LEFT JOIN Luggage l ON p.passenger_id = l.passenger_id
-GROUP BY p.passenger_id, p.first_name, p.last_name;
+-- A7: TOP 5 FLIGHTS WITH MOST CHECKED LUGGAGE
+SELECT '=== TOP 5 FLIGHTS WITH MOST LUGGAGE ===' AS query_title;
+SELECT f.flight_id, f.flight_number, COUNT(l.luggage_id) AS luggage_count
+FROM Flights f
+LEFT JOIN Luggage l ON f.flight_id = l.flight_id
+GROUP BY f.flight_id, f.flight_number
+ORDER BY luggage_count DESC
+LIMIT 5;
 
--- UPDATE ➤ Correct passenger name typo
-UPDATE Passengers SET first_name = 'Jon' WHERE first_name = 'John';
+-- ---------------------------------------------------------------------
 
--- DELETE ➤ Remove passenger with no luggage
-DELETE FROM Passengers WHERE passenger_id NOT IN (SELECT DISTINCT passenger_id FROM Luggage);
+-- A8: AVERAGE LUGGAGE WEIGHT PER FLIGHT
+SELECT '=== AVERAGE LUGGAGE WEIGHT PER FLIGHT ===' AS query_title;
+SELECT f.flight_id, f.flight_number, ROUND(AVG(l.weight),2) AS avg_weight
+FROM Flights f
+JOIN Luggage l ON f.flight_id = l.flight_id
+GROUP BY f.flight_id, f.flight_number;
 
+-- ---------------------------------------------------------------------
 
-SELECT '=== LUGGAGE STATUS SUMMARY ===' AS query_title;
-SELECT 
-    status,
-    COUNT(*) as count,
-    ROUND(COUNT(*) * 100.0 / (SELECT COUNT(*) FROM Luggage), 2) as percentage
-FROM Luggage 
+-- A9: LATEST STATUS PER LUGGAGE
+SELECT '=== LATEST STATUS PER LUGGAGE ===' AS query_title;
+SELECT l.luggage_id, l.status AS current_status, bs_latest.status AS last_status, bs_latest.timestamp
+FROM Luggage l
+LEFT JOIN (
+    SELECT bs.luggage_id, bs.status, bs.timestamp
+    FROM Baggage_Status bs
+    JOIN (
+        SELECT luggage_id, MAX(timestamp) AS max_ts
+        FROM Baggage_Status
+        GROUP BY luggage_id
+    ) latest ON bs.luggage_id = latest.luggage_id AND bs.timestamp = latest.max_ts
+) bs_latest ON l.luggage_id = bs_latest.luggage_id;
+
+-- ---------------------------------------------------------------------
+
+-- A10: UPDATE LUGGAGE STATUS AND VERIFY
+SELECT '=== UPDATE LUGGAGE STATUS ===' AS query_title;
+UPDATE Luggage SET status = 'arrived' WHERE luggage_id = 1;
+
+SELECT '=== VERIFY UPDATED STATUS ===' AS query_title;
+SELECT luggage_id, status FROM Luggage WHERE luggage_id = 1;
+
+-- ---------------------------------------------------------------------
+
+-- A11: STATUS HISTORY FOR LUGGAGE
+SELECT '=== STATUS HISTORY FOR LUGGAGE ===' AS query_title;
+SELECT bs.status_id, bs.status, bs.timestamp, al.location_name, al.city
+FROM Baggage_Status bs
+LEFT JOIN Airport_Locations al ON bs.location_id = al.location_id
+WHERE bs.luggage_id = 1
+ORDER BY bs.timestamp;
+
+-- ---------------------------------------------------------------------
+
+-- A12: EMPLOYEE WORKLOAD (PENDING REPORTS)
+SELECT '=== EMPLOYEE WORKLOAD ===' AS query_title;
+SELECT e.employee_id, CONCAT(e.first_name,' ',e.last_name) AS employee_name, e.role,
+       COUNT(r.report_id) AS assigned_open_reports
+FROM Employees e
+LEFT JOIN Reports r ON e.employee_id = r.employee_id AND r.status = 'pending'
+GROUP BY e.employee_id, e.first_name, e.last_name, e.role
+ORDER BY assigned_open_reports DESC;
+
+-- ---------------------------------------------------------------------
+
+-- A13: DAILY REPORT COUNT (LAST 30 DAYS)
+SELECT '=== DAILY REPORT COUNT ===' AS query_title;
+SELECT DATE(report_time) AS report_date, COUNT(*) AS reports_created
+FROM Reports
+WHERE report_time >= (CURDATE() - INTERVAL 30 DAY)
+GROUP BY DATE(report_time)
+ORDER BY report_date DESC;
+
+-- ---------------------------------------------------------------------
+
+-- A14: LUGGAGE AT SPECIFIC AIRPORT
+SELECT '=== LUGGAGE AT DUBAI AIRPORT ===' AS query_title;
+SELECT l.luggage_id, CONCAT(p.first_name,' ',p.last_name) AS passenger, l.status, l.weight
+FROM Luggage l
+JOIN Passengers p ON l.passenger_id = p.passenger_id
+WHERE l.current_location_id = 3;
+
+-- ---------------------------------------------------------------------
+
+-- A15: LUGGAGE STATUS BREAKDOWN
+SELECT '=== LUGGAGE STATUS BREAKDOWN ===' AS query_title;
+SELECT status, COUNT(*) AS count,
+       ROUND(COUNT(*) * 100.0 / (SELECT COUNT(*) FROM Luggage), 2) AS percentage
+FROM Luggage
 GROUP BY status;
 
--- UPDATE ➤ Normalize status text
-UPDATE Luggage SET status = 'Checked-In' WHERE status = 'checked-in';
+-- ---------------------------------------------------------------------
 
--- DELETE ➤ Remove temporary luggage data
-DELETE FROM Luggage WHERE status = 'temporary';
+-- A16: PASSENGERS WITH HEAVY LUGGAGE
+SELECT '=== PASSENGERS WITH HEAVY LUGGAGE ===' AS query_title;
+SELECT p.passenger_id, CONCAT(p.first_name,' ',p.last_name) AS passenger,
+       SUM(l.weight) AS total_weight_kg, COUNT(l.luggage_id) AS pieces
+FROM Passengers p
+JOIN Luggage l ON p.passenger_id = l.passenger_id
+GROUP BY p.passenger_id
+HAVING SUM(l.weight) > 20;
 
+-- ---------------------------------------------------------------------
 
-SELECT '=== EMPLOYEE REPORT ASSIGNMENTS ===' AS query_title;
-SELECT
-    e.employee_id,
-    CONCAT(e.first_name, ' ', e.last_name) AS employee_name,
-    e.role,
-    COUNT(r.report_id) AS assigned_reports
-FROM Employees e
-LEFT JOIN Reports r ON e.employee_id = r.employee_id
-GROUP BY e.employee_id, e.first_name, e.last_name, e.role;
+-- A17: OLD UNRESOLVED REPORTS
+SELECT '=== OLD UNRESOLVED REPORTS ===' AS query_title;
+SELECT r.report_id, r.luggage_id, r.report_time, r.status, TIMESTAMPDIFF(HOUR, r.report_time, NOW()) AS hours_open
+FROM Reports r
+WHERE r.status != 'resolved' AND r.report_time < (NOW() - INTERVAL 72 HOUR);
 
--- UPDATE ➤ Promote employee
-UPDATE Employees SET role = 'Senior Supervisor' WHERE employee_id = 3;
+-- ---------------------------------------------------------------------
 
--- DELETE ➤ Remove inactive employees
-DELETE FROM Employees WHERE employee_id > 15;
+-- A18: SYNC LUGGAGE LOCATIONS FROM STATUS
+SELECT '=== SYNC LUGGAGE LOCATIONS ===' AS query_title;
+UPDATE Luggage l
+JOIN (
+    SELECT bs.luggage_id, bs.location_id
+    FROM Baggage_Status bs
+    JOIN (
+        SELECT luggage_id, MAX(timestamp) AS max_ts
+        FROM Baggage_Status
+        GROUP BY luggage_id
+    ) latest ON bs.luggage_id = latest.luggage_id AND bs.timestamp = latest.max_ts
+) bs_latest ON l.luggage_id = bs_latest.luggage_id
+SET l.current_location_id = bs_latest.location_id;
 
+SELECT '=== VERIFY SYNCED LOCATIONS ===' AS query_title;
+SELECT l.luggage_id, l.current_location_id, al.location_name
+FROM Luggage l
+LEFT JOIN Airport_Locations al ON l.current_location_id = al.location_id
+ORDER BY l.luggage_id;
 
--- ==========================================================
--- STEP 8️⃣ : END STATUS
--- ==========================================================
-SELECT '=== ALL OPERATIONS COMPLETED SUCCESSFULLY ===' AS final_status;
+-- ---------------------------------------------------------------------
+
+-- A19: FLIGHTS WITH MOST DELAYED LUGGAGE
+SELECT '=== FLIGHTS WITH MOST DELAYED LUGGAGE ===' AS query_title;
+SELECT f.flight_id, f.flight_number, COUNT(l.luggage_id) AS delayed_count
+FROM Flights f
+LEFT JOIN Luggage l ON f.flight_id = l.flight_id AND l.status = 'delayed'
+GROUP BY f.flight_id, f.flight_number
+ORDER BY delayed_count DESC
+LIMIT 5;
+
+-- ---------------------------------------------------------------------
+
+-- A20: ADD RESOLVED_TIME COLUMN FOR SLA METRICS
+SELECT '=== ADDING RESOLVED_TIME COLUMN ===' AS query_title;
+ALTER TABLE Reports ADD COLUMN resolved_time DATETIME;
+
+-- A21: SLA METRICS BY REPORT TYPE
+SELECT '=== SLA METRICS BY REPORT TYPE ===' AS query_title;
+SELECT report_type,
+       ROUND(AVG(TIMESTAMPDIFF(HOUR, report_time, resolved_time)), 2) AS avg_resolution_hours,
+       COUNT(*) AS total_reports
+FROM Reports
+WHERE status = 'resolved' AND resolved_time IS NOT NULL
+GROUP BY report_type
+ORDER BY avg_resolution_hours ASC;
+
+-- =============================================
+-- END OF QUERIES
+-- =============================================
